@@ -1,0 +1,22 @@
+{
+  "roma": {
+    "online": true,
+    "last_seen": "2025-12-05T00:28:45.816478"
+  },
+  "ald": {
+    "online": false,
+    "last_seen": "2025-12-05T00:30:09.018805"
+  },
+  "roma1": {
+    "online": false,
+    "last_seen": "2025-12-05T00:28:40.291891"
+  },
+  "roma2": {
+    "online": true,
+    "last_seen": "2025-12-05T00:43:12.925310"
+  },
+  "ttt": {
+    "online": false,
+    "last_seen": "2025-12-05T00:45:24.055214"
+  }
+}

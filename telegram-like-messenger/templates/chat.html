@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="chat-app">
+    <!-- Боковая панель -->
+    <div class="sidebar">
+        <!-- Заголовок -->
+        <div class="sidebar-header">
+            <div class="user-profile">
+                <a href="{{ url_for('profile') }}" class="user-link">
+                    <div class="user-avatar" style="background: {{ current_user.avatar_color }};">
+                        {% if current_user.avatar %}
+                        <img src="{{ current_user.avatar }}" alt="{{ current_user.name }}">
+                        {% else %}
+                        {{ current_user.name[0]|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="user-info">
+                        <h3>{{ current_user.name }}</h3>
+                        <p class="user-status online">
+                            <i class="fas fa-circle"></i> онлайн
+                        </p>
+                    </div>
+                </a>
+            </div>
+            <div class="sidebar-actions">
+                <button class="btn-icon" id="search-toggle">
+                    <i class="fas fa-search"></i>
+                </button>
+                <a href="{{ url_for('profile') }}" class="btn-icon" title="Профиль">
+                    <i class="fas fa-user"></i>
+                </a>
+                <a href="{{ url_for('logout') }}" class="btn-icon" title="Выйти">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Поиск -->
+        <div class="search-container" id="search-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Поиск пользователей...">
+            </div>
+            <div id="search-results" class="search-results"></div>
+        </div>
+
+        <!-- Контакты -->
+        <div class="contacts-container">
+            <div class="contacts-header">
+                <h3>Контакты</h3>
+                <span class="badge" id="online-count">0 онлайн</span>
+            </div>
+
+            <div class="contacts-list" id="contacts-list">
+                {% for contact in contacts %}
+                <div class="contact-item" data-username="{{ contact.username }}"
+                     data-color="{{ contact.avatar_color }}">
+                    <div class="contact-avatar" style="background: {{ contact.avatar_color }};">
+                        {% if contact.avatar %}
+                        <img src="{{ contact.avatar }}" alt="{{ contact.name }}">
+                        {% else %}
+                        {{ contact.name[0]|upper }}
+                        {% endif %}
+                        <span class="status-indicator" id="status-{{ contact.username }}"></span>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-name-row">
+                            <h4>{{ contact.name }}</h4>
+                        </div>
+                        <p class="contact-preview">
+                            @{{ contact.username }}
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Область чата -->
+    <div class="chat-area">
+        <!-- Заголовок чата -->
+        <div class="chat-header" id="chat-header">
+            <div class="empty-chat">
+                <div class="empty-icon">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <h2>Kildear Messenger</h2>
+                <p>Выберите чат для начала общения</p>
+                <button class="btn btn-outline" id="start-new-chat">
+                    <i class="fas fa-plus"></i> Начать новый чат
+                </button>
+            </div>
+        </div>
+
+        <!-- Сообщения -->
+        <div class="messages-container" id="messages-container">
+            <!-- Сообщения загружаются динамически -->
+        </div>
+
+        <!-- Ввод сообщения -->
+        <div class="message-input-container" id="message-input-container" style="display: none;">
+            <div class="typing-indicator" id="typing-indicator" style="display: none;">
+                <span id="typing-text"></span>
+            </div>
+            <form id="message-form">
+                <input type="text" id="message-input"
+                       placeholder="Напишите сообщение..."
+                       autocomplete="off"
+                       maxlength="2000">
+                <button type="submit" class="btn btn-primary btn-send">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Скрытые поля -->
+<input type="hidden" id="current-user" value="{{ current_user.username }}">
+<input type="hidden" id="current-user-name" value="{{ current_user.name }}">
+<input type="hidden" id="current-user-color" value="{{ current_user.avatar_color }}">
+<input type="hidden" id="current-recipient">
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+{% endblock %}
