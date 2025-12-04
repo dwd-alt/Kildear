@@ -561,12 +561,13 @@ def handle_send_message(data):
 
 
 if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+
     print("=" * 50)
     print("🚀 KILDEAR MESSENGER ЗАПУЩЕН")
     print("=" * 50)
-    print("📡 Доступен по адресам:")
-    print(f"   • Локально: http://localhost:5000")
-    print(f"   • В сети:  http://ваш-ip:5000")
+    print(f"📡 Порт: {port}")
+    print(f"   • Локально: http://localhost:{port}")
     print("=" * 50)
     print("🔒 Функции безопасности:")
     print("   • Хэширование паролей")
@@ -576,4 +577,4 @@ if __name__ == '__main__':
     print("⚠️  Нажмите Ctrl+C для остановки")
     print("=" * 50)
 
-    socketio.run(app, debug=True, host='0.0.0.0', port=5000)
+    socketio.run(app, debug=False, host='0.0.0.0', port=port)  # debug=False на продакшене!
