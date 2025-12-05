@@ -1,1 +1,750 @@
-
+{
+  "ald_roma": [
+    {
+      "id": "ecc26f26-7062-4232-bf09-2b0e285da2a1",
+      "sender": "roma",
+      "recipient": "ald",
+      "message": "fdfd",
+      "timestamp": "2025-12-04T23:55:55.944445",
+      "read": false
+    },
+    {
+      "id": "389e5ee1-a211-4a81-93b7-c581f8d9cf2c",
+      "sender": "roma",
+      "recipient": "ald",
+      "message": "f",
+      "timestamp": "2025-12-04T23:55:57.525087",
+      "read": false
+    },
+    {
+      "id": "cafc7c06-5435-4660-8a78-08a653331fe3",
+      "sender": "roma",
+      "recipient": "ald",
+      "message": "fd",
+      "timestamp": "2025-12-04T23:55:57.741881",
+      "read": false
+    },
+    {
+      "id": "e4330916-f59e-484c-8fe4-32eed6cdd494",
+      "sender": "roma",
+      "recipient": "ald",
+      "message": "f",
+      "timestamp": "2025-12-04T23:55:57.922815",
+      "read": false
+    },
+    {
+      "id": "a0e1bbcb-703b-412f-8c78-db402b78af54",
+      "sender": "roma",
+      "recipient": "ald",
+      "message": "f",
+      "timestamp": "2025-12-04T23:55:58.109812",
+      "read": false
+    },
+    {
+      "id": "06eeb6c2-b49b-4eb6-9ae9-127ba9d30c40",
+      "sender": "roma",
+      "recipient": "ald",
+      "message": "f",
+      "timestamp": "2025-12-04T23:55:58.303117",
+      "read": false
+    },
+    {
+      "id": "6286cfb0-2556-4b89-8ff3-ecc7fd2ce06e",
+      "sender": "roma",
+      "recipient": "ald",
+      "message": "f",
+      "timestamp": "2025-12-04T23:55:58.927465",
+      "read": false
+    },
+    {
+      "id": "bd664212-4915-4766-913e-2632bd10c140",
+      "sender": "roma",
+      "recipient": "ald",
+      "message": "fffsdffd",
+      "timestamp": "2025-12-04T23:56:00.626388",
+      "read": false
+    },
+    {
+      "id": "5313a030-cfd3-42b8-9d80-28af5a022912",
+      "sender": "roma",
+      "recipient": "ald",
+      "message": "fd",
+      "timestamp": "2025-12-05T00:28:58.305358",
+      "read": false
+    },
+    {
+      "id": "a688ff05-b720-4cd8-89ee-ce90865b4215",
+      "sender": "roma",
+      "recipient": "ald",
+      "message": "df",
+      "timestamp": "2025-12-05T00:28:58.981226",
+      "read": false
+    }
+  ],
+  "ald_roma1": [
+    {
+      "id": "38a59128-5fc9-4d7e-9b5c-06bef7fd4a9e",
+      "sender": "roma1",
+      "recipient": "ald",
+      "message": "ва",
+      "timestamp": "2025-12-05T00:26:48.440976",
+      "read": false
+    }
+  ],
+  "ald_ttt": [
+    {
+      "id": "80d1804d-da6e-47ff-94fe-4098818e8921",
+      "sender": "ttt",
+      "recipient": "ald",
+      "message": "Hggg",
+      "timestamp": "2025-12-05T00:44:19.408746",
+      "read": false
+    }
+  ],
+  "roma2_ttt": [
+    {
+      "id": "ed36883b-eb05-469a-a755-059f9290d859",
+      "sender": "roma2",
+      "recipient": "ttt",
+      "message": "dff",
+      "timestamp": "2025-12-05T00:44:38.044261",
+      "read": false
+    },
+    {
+      "id": "c2063ac7-339c-45db-a8a2-98d244f04a64",
+      "sender": "roma2",
+      "recipient": "ttt",
+      "message": "vv",
+      "timestamp": "2025-12-05T00:44:46.246409",
+      "read": false
+    },
+    {
+      "id": "54ed9643-6c5c-415d-999d-4681740e9fb2",
+      "sender": "roma2",
+      "recipient": "ttt",
+      "message": "fdfdfdd",
+      "timestamp": "2025-12-05T00:44:48.434082",
+      "read": false
+    },
+    {
+      "id": "aa773c8c-4103-4eba-9cef-fc5d74af9162",
+      "sender": "roma2",
+      "recipient": "ttt",
+      "message": "..",
+      "timestamp": "2025-12-05T00:45:08.271031",
+      "read": false
+    },
+    {
+      "id": "4a4064c4-1b3f-4328-85a3-78e828808124",
+      "sender": "roma2",
+      "recipient": "ttt",
+      "message": ".'",
+      "timestamp": "2025-12-05T00:45:09.473246",
+      "read": false
+    },
+    {
+      "id": "7df67e5b-8d2b-45a0-b4da-88052e8a7b7a",
+      "sender": "roma2",
+      "recipient": "ttt",
+      "message": "вывывв",
+      "timestamp": "2025-12-05T01:11:34.762041",
+      "read": false
+    },
+    {
+      "id": "760e44b6-ef3c-49bf-ac25-8f4b17de8f78",
+      "sender": "ttt",
+      "recipient": "roma2",
+      "message": "Э",
+      "timestamp": "2025-12-05T01:11:42.961292",
+      "read": false
+    },
+    {
+      "id": "3498f80a-9914-4403-b441-809093597dfb",
+      "sender": "ttt",
+      "recipient": "roma2",
+      "message": "Контакбас",
+      "timestamp": "2025-12-05T01:11:52.311138",
+      "read": false
+    }
+  ],
+  "iagei_roma232": [
+    {
+      "id": "5f361063-8a9e-4552-8cd0-8fba98cb7864",
+      "sender": "roma232",
+      "recipient": "iagei",
+      "message": "ghbdttn",
+      "type": "text",
+      "timestamp": "2025-12-05T20:39:14.677765",
+      "read": false
+    },
+    {
+      "id": "e5673c62-ab44-4caf-ac7b-ecb854d4bad8",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "привет",
+      "type": "text",
+      "timestamp": "2025-12-05T20:39:19.289788",
+      "read": false
+    },
+    {
+      "id": "ceeec6cb-eb92-4222-9d0e-df6602ee997e",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "",
+      "type": "image",
+      "timestamp": "2025-12-05T20:39:26.952814",
+      "read": false,
+      "file_path": "media/f42cb3c5a43140d18d8f4327c5c7329e.png",
+      "file_name": "2025-12-05 115850.png",
+      "file_size": 203031
+    },
+    {
+      "id": "6fd55f83-2c3e-4559-b15d-bbca687d77a7",
+      "sender": "roma232",
+      "recipient": "iagei",
+      "message": "вава",
+      "type": "text",
+      "timestamp": "2025-12-05T20:39:34.597477",
+      "read": false
+    },
+    {
+      "id": "833f681a-63cd-4304-b5b3-eea8fc32d3b2",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "dff",
+      "type": "text",
+      "timestamp": "2025-12-05T21:17:44.568406",
+      "read": false
+    },
+    {
+      "id": "3e030f14-754d-4dd1-82c3-43eb3877a60b",
+      "sender": "roma232",
+      "recipient": "iagei",
+      "message": "fdf",
+      "type": "text",
+      "timestamp": "2025-12-05T21:17:51.891580",
+      "read": false
+    },
+    {
+      "id": "121b969e-235e-4593-aa53-efa27b514b68",
+      "sender": "roma232",
+      "recipient": "iagei",
+      "message": "прпивет",
+      "type": "text",
+      "timestamp": "2025-12-05T21:18:07.743303",
+      "read": false
+    },
+    {
+      "id": "c7bf3ddb-f1fd-4471-a631-deef8abc8fd3",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "как дела",
+      "type": "text",
+      "timestamp": "2025-12-05T21:18:20.288584",
+      "read": false
+    },
+    {
+      "id": "9cd01cc1-0356-453f-b34e-5cf7663622d3",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "ds",
+      "type": "text",
+      "timestamp": "2025-12-05T21:50:20.225363",
+      "read": false,
+      "edited": true,
+      "reply_to": null,
+      "forward_from": null,
+      "edited_at": "2025-12-05T21:50:29.429586",
+      "deleted": true,
+      "deleted_by": "iagei",
+      "deleted_at": "2025-12-05T21:50:38.887877"
+    },
+    {
+      "id": "525e2013-520f-40fd-bdde-5f69761f2484",
+      "sender": "roma232",
+      "recipient": "iagei",
+      "message": "ghbdtm",
+      "type": "text",
+      "timestamp": "2025-12-05T21:51:03.606760",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "9ef09614-f474-4411-8eb5-6853f0fe9033",
+      "sender": "roma232",
+      "recipient": "iagei",
+      "message": "привет",
+      "type": "text",
+      "timestamp": "2025-12-05T21:51:07.414176",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "151cffe2-b446-4a55-93a5-9d212219707e",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "привет",
+      "type": "text",
+      "timestamp": "2025-12-05T21:51:10.994902",
+      "read": false,
+      "edited": false,
+      "reply_to": "9cd01cc1-0356-453f-b34e-5cf7663622d3",
+      "forward_from": null
+    },
+    {
+      "id": "5aa6dd33-b446-4f14-a814-72d1d5f1449b",
+      "sender": "roma232",
+      "recipient": "iagei",
+      "message": "sdd",
+      "type": "text",
+      "timestamp": "2025-12-05T21:52:34.942825",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "9ce7fd8d-a53d-4783-8765-751d443a819d",
+      "sender": "roma232",
+      "recipient": "iagei",
+      "message": "",
+      "type": "image",
+      "timestamp": "2025-12-05T21:52:40.577444",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null,
+      "file_path": "media/b53effd113a74f1793847e2d554e5b05.jpg",
+      "file_name": "photo_2025-10-29_23-33-27.jpg",
+      "file_size": 790192
+    },
+    {
+      "id": "7e8bd099-33a6-481d-9275-0f1e9e1c9a8b",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "п",
+      "type": "text",
+      "timestamp": "2025-12-05T22:07:27.580847",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "539d4f82-7469-480d-8dec-ef328d8d8d0c",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "а",
+      "type": "text",
+      "timestamp": "2025-12-05T22:07:28.153537",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "7d51dff8-455b-4b25-9421-8760f99394ff",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "а",
+      "type": "text",
+      "timestamp": "2025-12-05T22:07:28.942644",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "6a42b42e-40e0-4fdc-98d1-11a2eba29f2d",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "а",
+      "type": "text",
+      "timestamp": "2025-12-05T22:07:39.719629",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "85cbe404-0bc3-49c9-a096-05173ce94151",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "а",
+      "type": "text",
+      "timestamp": "2025-12-05T22:07:43.547235",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "695ed597-3335-4194-bcc9-4ec4e450e6ae",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "п",
+      "type": "text",
+      "timestamp": "2025-12-05T22:07:44.185364",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "05129d8b-6bd1-4a14-884b-b54ed434c38a",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "па",
+      "type": "text",
+      "timestamp": "2025-12-05T22:07:47.109335",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "2590b10c-e0d0-477c-9b0b-b91e6e7944cd",
+      "sender": "roma232",
+      "recipient": "iagei",
+      "message": "пап",
+      "type": "text",
+      "timestamp": "2025-12-05T22:07:53.080307",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "95c8dab5-a9a6-48ac-9b5c-84d924ecb258",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "dfdfjkjhk",
+      "type": "text",
+      "timestamp": "2025-12-05T22:27:56.528336",
+      "read": false,
+      "edited": true,
+      "reply_to": null,
+      "forward_from": null,
+      "edited_at": "2025-12-05T22:29:51.922220"
+    },
+    {
+      "id": "9e7ab08e-de98-492b-abe2-a2cb368244d9",
+      "sender": "roma232",
+      "recipient": "iagei",
+      "message": "fdfdf",
+      "type": "text",
+      "timestamp": "2025-12-05T22:28:03.995693",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "4fc43986-905e-474c-9d9a-b803069ccf55",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "fdf",
+      "type": "image",
+      "timestamp": "2025-12-05T22:28:11.537625",
+      "read": false,
+      "edited": true,
+      "reply_to": null,
+      "forward_from": null,
+      "file_path": "media/3de73ceb92e14d35a91f388c4a7b4ef5.jpg",
+      "file_name": "photo_2025-10-29_23-33-27.jpg",
+      "file_size": 790192,
+      "deleted": true,
+      "deleted_by": "iagei",
+      "deleted_at": "2025-12-05T22:29:33.177858",
+      "edited_at": "2025-12-05T22:29:47.406377"
+    },
+    {
+      "id": "edeba680-b68f-4bd0-a2f8-5d6537a65a53",
+      "sender": "roma232",
+      "recipient": "iagei",
+      "message": "че это",
+      "type": "text",
+      "timestamp": "2025-12-05T22:28:21.086326",
+      "read": false,
+      "edited": false,
+      "reply_to": "4fc43986-905e-474c-9d9a-b803069ccf55",
+      "forward_from": null
+    },
+    {
+      "id": "0bce2cf7-44e6-43c1-86ca-6a44c116d96b",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "ва",
+      "type": "text",
+      "timestamp": "2025-12-05T23:03:45.263595",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "cf58a7b8-9a41-4ca6-a141-ed3bdf1a7428",
+      "sender": "iagei",
+      "recipient": "roma232",
+      "message": "sdsd\\",
+      "type": "text",
+      "timestamp": "2025-12-05T23:57:09.237301",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "370ff303-f372-475c-b188-8e31aac18436",
+      "sender": "roma232",
+      "recipient": "iagei",
+      "message": "sdsd\\e",
+      "type": "text",
+      "timestamp": "2025-12-05T23:57:20.886526",
+      "read": false,
+      "edited": true,
+      "reply_to": null,
+      "forward_from": null,
+      "edited_at": "2025-12-05T23:58:04.694931"
+    },
+    {
+      "id": "aa392d9a-5472-42a1-a6c9-d223d4cbc769",
+      "sender": "roma232",
+      "recipient": "iagei",
+      "message": "",
+      "type": "image",
+      "timestamp": "2025-12-05T23:57:35.629456",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null,
+      "file_path": "media/6a7f5162aa3b43458c1f32ac5e5d1e74.png",
+      "file_name": "Снимок экрана 2025-10-15 233656.png",
+      "file_size": 92967
+    },
+    {
+      "id": "d48e5d30-978e-471b-af05-9306698d1d15",
+      "sender": "roma232",
+      "recipient": "iagei",
+      "message": "df",
+      "type": "text",
+      "timestamp": "2025-12-05T23:57:44.305572",
+      "read": false,
+      "edited": false,
+      "reply_to": "aa392d9a-5472-42a1-a6c9-d223d4cbc769",
+      "forward_from": null,
+      "deleted": true,
+      "deleted_by": "roma232",
+      "deleted_at": "2025-12-05T23:58:45.038060",
+      "permanent": true
+    }
+  ],
+  "roma232_ttt": [
+    {
+      "id": "b8f779f1-20d8-4183-abb0-f54fb574c615",
+      "sender": "ttt",
+      "recipient": "roma232",
+      "message": "Прв",
+      "type": "text",
+      "timestamp": "2025-12-05T20:45:22.636592",
+      "read": false
+    },
+    {
+      "id": "f9d2436c-9858-4694-9e61-2759ccd4817f",
+      "sender": "roma232",
+      "recipient": "ttt",
+      "message": "d",
+      "type": "text",
+      "timestamp": "2025-12-05T21:17:06.552590",
+      "read": false
+    }
+  ],
+  "olga_roma232": [
+    {
+      "id": "d1058579-cb54-4437-90cd-88a8fc07ea97",
+      "sender": "roma232",
+      "recipient": "olga",
+      "message": "привет",
+      "type": "text",
+      "timestamp": "2025-12-05T20:50:57.647470",
+      "read": false
+    },
+    {
+      "id": "4a156d3b-1cf7-4bf8-a716-70f072c7b143",
+      "sender": "olga",
+      "recipient": "roma232",
+      "message": "Привет",
+      "type": "text",
+      "timestamp": "2025-12-05T20:51:20.575171",
+      "read": false
+    },
+    {
+      "id": "808222f4-825b-48b0-b83c-d181b233d498",
+      "sender": "olga",
+      "recipient": "roma232",
+      "message": "Общаюсь",
+      "type": "text",
+      "timestamp": "2025-12-05T20:52:54.764458",
+      "read": false
+    },
+    {
+      "id": "a79cf2f4-7246-4332-a383-7a31d283d978",
+      "sender": "olga",
+      "recipient": "roma232",
+      "message": "С тобой",
+      "type": "text",
+      "timestamp": "2025-12-05T20:52:58.129942",
+      "read": false
+    },
+    {
+      "id": "35d0e29a-c542-4fb7-8a1e-274653056fbe",
+      "sender": "roma232",
+      "recipient": "olga",
+      "message": "я понял",
+      "type": "text",
+      "timestamp": "2025-12-05T20:53:02.324328",
+      "read": false
+    },
+    {
+      "id": "1f9f1e2d-94cc-4408-95a8-90e7a593d71c",
+      "sender": "olga",
+      "recipient": "roma232",
+      "message": "Ку",
+      "type": "text",
+      "timestamp": "2025-12-05T20:53:11.605865",
+      "read": false
+    },
+    {
+      "id": "87d237de-bba0-4614-9a86-6c212daefd58",
+      "sender": "olga",
+      "recipient": "roma232",
+      "message": "Ку-ку",
+      "type": "text",
+      "timestamp": "2025-12-05T20:53:21.564306",
+      "read": false
+    },
+    {
+      "id": "d1a19138-5203-4d8b-89aa-3e443897bf70",
+      "sender": "olga",
+      "recipient": "roma232",
+      "message": "Я не вижу, что пишу",
+      "type": "text",
+      "timestamp": "2025-12-05T20:53:35.996913",
+      "read": false
+    },
+    {
+      "id": "046a724e-3c9c-4d58-a63c-6b3ad3e44619",
+      "sender": "olga",
+      "recipient": "roma232",
+      "message": "Я опять не вижу что пишу",
+      "type": "text",
+      "timestamp": "2025-12-05T20:54:16.575486",
+      "read": false
+    },
+    {
+      "id": "aa2e812a-0a43-483f-ae67-40d3891a42c2",
+      "sender": "olga",
+      "recipient": "roma232",
+      "message": "А ты сидишь?",
+      "type": "text",
+      "timestamp": "2025-12-05T20:54:29.806194",
+      "read": false
+    },
+    {
+      "id": "f2e3a005-03f1-490c-ba28-b70a1af70a9f",
+      "sender": "olga",
+      "recipient": "roma232",
+      "message": "А ты видишь?",
+      "type": "text",
+      "timestamp": "2025-12-05T20:54:41.399034",
+      "read": false
+    },
+    {
+      "id": "6f359e9a-73fe-4f79-aa64-ad31f888ce44",
+      "sender": "roma232",
+      "recipient": "olga",
+      "message": "да",
+      "type": "text",
+      "timestamp": "2025-12-05T20:55:16.114463",
+      "read": false
+    }
+  ],
+  "olga_ttt": [
+    {
+      "id": "21882e52-4d58-4f36-be00-6d535552e2ce",
+      "sender": "ttt",
+      "recipient": "olga",
+      "message": "Привет",
+      "type": "text",
+      "timestamp": "2025-12-05T22:38:37.128759",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "ac4b1f9f-df04-4a80-b18a-b57996446052",
+      "sender": "ttt",
+      "recipient": "olga",
+      "message": "Рро",
+      "type": "text",
+      "timestamp": "2025-12-05T22:39:23.044690",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "cc2f7c10-408d-46a2-adc0-b9fddb1f018b",
+      "sender": "olga",
+      "recipient": "ttt",
+      "message": "Привет",
+      "type": "text",
+      "timestamp": "2025-12-05T22:39:55.493729",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "9c16b4be-b079-49a7-9eb9-67c6a871937d",
+      "sender": "ttt",
+      "recipient": "olga",
+      "message": "Привет",
+      "type": "text",
+      "timestamp": "2025-12-05T22:40:02.448374",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "f523836d-b5eb-4189-ab95-63bcafd8ecf3",
+      "sender": "olga",
+      "recipient": "ttt",
+      "message": "Я тебя люблю",
+      "type": "text",
+      "timestamp": "2025-12-05T22:41:11.530227",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "fda34c79-f570-4f66-ad49-f19ea6671e2b",
+      "sender": "olga",
+      "recipient": "ttt",
+      "message": "Очень очень",
+      "type": "text",
+      "timestamp": "2025-12-05T22:41:20.782142",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    }
+  ]
+}

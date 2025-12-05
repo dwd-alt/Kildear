@@ -27,11 +27,18 @@
                 <button class="btn-icon" id="search-toggle">
                     <i class="fas fa-search"></i>
                 </button>
+                <button class="btn-icon" id="pinned-messages-btn" title="Закрепленные сообщения">
+                    <i class="fas fa-thumbtack"></i>
+                </button>
+                <button class="btn-icon" id="blocked-users-btn" title="Заблокированные пользователи">
+                    <i class="fas fa-ban"></i>
+                </button>
                 <a href="{{ url_for('profile') }}" class="btn-icon" title="Профиль">
                     <i class="fas fa-user"></i>
                 </a>
                 <a href="{{ url_for('logout') }}" class="btn-icon" title="Выйти">
                     <i class="fas fa-sign-out-alt"></i>
+
                 </a>
             </div>
         </div>
@@ -48,32 +55,17 @@
         <!-- Контакты -->
         <div class="contacts-container">
             <div class="contacts-header">
-                <h3>Контакты</h3>
-                <span class="badge" id="online-count">0 онлайн</span>
+                <h3>Чаты</h3>
+                <span class="badge" id="online-count">0</span>
             </div>
 
             <div class="contacts-list" id="contacts-list">
-                {% for contact in contacts %}
-                <div class="contact-item" data-username="{{ contact.username }}"
-                     data-color="{{ contact.avatar_color }}">
-                    <div class="contact-avatar" style="background: {{ contact.avatar_color }};">
-                        {% if contact.avatar %}
-                        <img src="{{ contact.avatar }}" alt="{{ contact.name }}">
-                        {% else %}
-                        {{ contact.name[0]|upper }}
-                        {% endif %}
-                        <span class="status-indicator" id="status-{{ contact.username }}"></span>
+                <div class="empty-contacts" id="empty-contacts">
+                    <div class="empty-icon">
+                        <i class="fas fa-comments"></i>
                     </div>
-                    <div class="contact-info">
-                        <div class="contact-name-row">
-                            <h4>{{ contact.name }}</h4>
-                        </div>
-                        <p class="contact-preview">
-                            @{{ contact.username }}
-                        </p>
-                    </div>
+                    <p>Начните новый чат через поиск</p>
                 </div>
-                {% endfor %}
             </div>
         </div>
     </div>
@@ -89,7 +81,7 @@
                 <h2>Kildear Messenger</h2>
                 <p>Выберите чат для начала общения</p>
                 <button class="btn btn-outline" id="start-new-chat">
-                    <i class="fas fa-plus"></i> Начать новый чат
+                    <i class="fas fa-search"></i> Найти пользователя
                 </button>
             </div>
         </div>
@@ -99,20 +91,96 @@
             <!-- Сообщения загружаются динамически -->
         </div>
 
+        <!-- Превью ответа -->
+        <div class="reply-preview" id="reply-preview" style="display: none;"></div>
+
+        <!-- Превью пересылки -->
+        <div class="forward-preview" id="forward-preview" style="display: none;"></div>
+
+        <!-- Редактирование сообщения -->
+        <div class="edit-message-container" id="edit-message-container" style="display: none;">
+            <div class="edit-message-header">
+                <span><i class="fas fa-edit"></i> Изменение сообщения</span>
+                <button class="btn-icon" id="cancel-edit">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="edit-message-form">
+                <input type="text" id="edit-message-input" placeholder="Введите новый текст...">
+                <button type="submit" class="btn btn-primary btn-send">
+                    <i class="fas fa-check"></i>
+                </button>
+            </form>
+        </div>
+
         <!-- Ввод сообщения -->
         <div class="message-input-container" id="message-input-container" style="display: none;">
             <div class="typing-indicator" id="typing-indicator" style="display: none;">
                 <span id="typing-text"></span>
             </div>
-            <form id="message-form">
-                <input type="text" id="message-input"
-                       placeholder="Напишите сообщение..."
-                       autocomplete="off"
-                       maxlength="2000">
-                <button type="submit" class="btn btn-primary btn-send">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </form>
+            <div class="message-input-wrapper">
+                <!-- Кнопки для вложений -->
+                <div class="attachment-buttons">
+                    <button type="button" class="btn-icon" id="attach-photo" title="Отправить фото">
+                        <i class="fas fa-image"></i>
+                        <input type="file" id="photo-input" accept="image/*" style="display: none;">
+                    </button>
+                    <button type="button" class="btn-icon" id="attach-video" title="Отправить видео">
+                        <i class="fas fa-video"></i>
+                        <input type="file" id="video-input" accept="video/*" style="display: none;">
+                    </button>
+                </div>
+
+                <form id="message-form">
+                    <input type="text" id="message-input"
+                           placeholder="Напишите сообщение..."
+                           autocomplete="off"
+                           maxlength="2000">
+                    <button type="submit" class="btn btn-primary btn-send">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Превью вложений -->
+            <div class="attachment-preview" id="attachment-preview" style="display: none;">
+                <div class="preview-item">
+                    <div class="preview-content">
+                        <div class="preview-image" id="preview-image"></div>
+                        <div class="preview-video" id="preview-video"></div>
+                    </div>
+                    <button type="button" class="btn-icon btn-remove-attachment" id="remove-attachment">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="preview-info" id="preview-info"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Панель закрепленных сообщений -->
+    <div class="side-panel" id="pinned-messages-panel" style="display: none;">
+        <div class="panel-header">
+            <h3><i class="fas fa-thumbtack"></i> Закрепленные</h3>
+            <button class="btn-icon close-panel">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="panel-content" id="pinned-messages-list">
+            <!-- Закрепленные сообщения загружаются динамически -->
+        </div>
+    </div>
+
+    <!-- Панель заблокированных пользователей -->
+    <div class="side-panel" id="blocked-users-panel" style="display: none;">
+        <div class="panel-header">
+            <h3><i class="fas fa-ban"></i> Заблокированные</h3>
+            <button class="btn-icon close-panel">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="panel-content" id="blocked-users-list">
+            <!-- Заблокированные пользователи загружаются динамически -->
         </div>
     </div>
 </div>
@@ -121,10 +189,11 @@
 <input type="hidden" id="current-user" value="{{ current_user.username }}">
 <input type="hidden" id="current-user-name" value="{{ current_user.name }}">
 <input type="hidden" id="current-user-color" value="{{ current_user.avatar_color }}">
+<input type="hidden" id="is-admin" value="{{ is_admin }}">
 <input type="hidden" id="current-recipient">
 {% endblock %}
 
 {% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 <script src="{{ url_for('static', filename='script.js') }}"></script>
-{% endblock %}
+{% endblock %}chat.html

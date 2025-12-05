@@ -1,22 +1,18 @@
 {
-  "roma": {
-    "online": true,
-    "last_seen": "2025-12-05T00:28:45.816478"
-  },
-  "ald": {
+  "roma232": {
     "online": false,
-    "last_seen": "2025-12-05T00:30:09.018805"
+    "last_seen": "2025-12-06T00:08:43.460957"
   },
-  "roma1": {
-    "online": false,
-    "last_seen": "2025-12-05T00:28:40.291891"
-  },
-  "roma2": {
+  "iagei": {
     "online": true,
-    "last_seen": "2025-12-05T00:43:12.925310"
+    "last_seen": "2025-12-06T00:09:35.873318"
+  },
+  "olga": {
+    "online": false,
+    "last_seen": "2025-12-05T22:44:55.494122"
   },
   "ttt": {
     "online": false,
-    "last_seen": "2025-12-05T00:45:24.055214"
+    "last_seen": "2025-12-05T22:43:30.457975"
   }
 }

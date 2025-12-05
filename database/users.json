@@ -1,1 +1,81 @@
-
+{
+  "roma": {
+    "name": "Roma",
+    "description": "ddss",
+    "username": "roma",
+    "avatar_color": "#FFEAA7",
+    "created_at": "2025-12-04T23:52:18.027178",
+    "last_seen": "2025-12-04T23:52:18.027187"
+  },
+  "ald": {
+    "name": "Роман",
+    "description": "",
+    "username": "ald",
+    "avatar_color": "#FFEAA7",
+    "created_at": "2025-12-04T23:55:43.199412",
+    "last_seen": "2025-12-04T23:55:43.199420"
+  },
+  "roma1": {
+    "name": "Roma1",
+    "description": "ава",
+    "username": "roma1",
+    "avatar_color": "#FFEAA7",
+    "created_at": "2025-12-05T00:26:44.858350",
+    "last_seen": "2025-12-05T00:26:44.858359"
+  },
+  "roma2": {
+    "name": "Roma",
+    "description": "ваавв",
+    "username": "roma2",
+    "password_hash": "scrypt:32768:8:1$ip4iSNl5VK5fTBNB$72cfcef9efdb18391b1bb1d6a3f54f42808486377fe76b4449b245466937c27a44d116b6f7c073a191c15c3a63330883aa23178e95b3fe68edd22e3da75b3ba5",
+    "avatar_color": "#DDA0DD",
+    "avatar": null,
+    "theme": "dark",
+    "created_at": "2025-12-05T00:42:26.617998",
+    "last_seen": "2025-12-05T00:42:26.618007"
+  },
+  "ttt": {
+    "name": "Hh",
+    "description": "Hh",
+    "username": "ttt",
+    "password_hash": "scrypt:32768:8:1$wEvPAyN5jiaA4hYd$cafd2947788097fe66619db216da07bfe3e4a7dd5981d0c8c1121156c2312b53fd9d43534041cd5aec7525c9e185675d9d18f5ab23931ee0227fd924f9a10d99",
+    "avatar_color": "#DDA0DD",
+    "avatar": null,
+    "theme": "dark",
+    "created_at": "2025-12-05T00:44:12.565311",
+    "last_seen": "2025-12-05T00:44:12.565321"
+  },
+  "roma232": {
+    "name": "dfdf",
+    "description": "",
+    "username": "roma232",
+    "password_hash": "pbkdf2:sha256:600000$Z1WgOCEusBvSC8OT$3103b742514b294df0943ce755343d194569a26b024e3462f5f7320086ce16a9",
+    "avatar_color": "#4ECDC4",
+    "avatar": "/static/uploads/avatars/roma232_1764948703.png",
+    "theme": "dark",
+    "created_at": "2025-12-05T20:34:21.429991",
+    "last_seen": "2025-12-05T20:34:21.430000"
+  },
+  "iagei": {
+    "name": "dfdf",
+    "description": "",
+    "username": "iagei",
+    "password_hash": "pbkdf2:sha256:600000$sBtr6ihRvDKaOjUJ$202625ecc50d3736ad772eadc483eea9d9d52915b3e6cb192aa9d8e949ad8b1e",
+    "avatar_color": "#FF6B6B",
+    "avatar": "/static/uploads/avatars/iagei_1764954090.png",
+    "theme": "dark",
+    "created_at": "2025-12-05T20:39:04.422479",
+    "last_seen": "2025-12-05T20:39:04.422487"
+  },
+  "olga": {
+    "name": "Оля",
+    "description": "",
+    "username": "olga",
+    "password_hash": "pbkdf2:sha256:600000$ihD7gNBQ0rwAHfkY$2965f541249c7fc44142a7ebbfdbd5dbb514120e12807606dab8e9e60c7bb1d8",
+    "avatar_color": "#98D8C8",
+    "avatar": null,
+    "theme": "dark",
+    "created_at": "2025-12-05T20:49:19.607219",
+    "last_seen": "2025-12-05T20:49:19.607230"
+  }
+}
