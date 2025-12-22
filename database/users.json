@@ -11,31 +11,5 @@
     "last_seen": "2025-12-22T14:13:22.616817",
     "blocked": false,
     "calls_enabled": true
-  },
-  "admin1": {
-    "name": "Рома",
-    "description": "",
-    "username": "admin1",
-    "password_hash": "pbkdf2:sha256:600000$5Ck9yozAd4YSwVO1$c1e9e7ba71b290548ab5486266846780abc635446f6c832cbfba72536d8606c6",
-    "avatar_color": "#96CEB4",
-    "avatar": "/static/uploads/avatars/admin1_1766395044.png",
-    "theme": "dark",
-    "created_at": "2025-12-22T14:14:43.081187",
-    "last_seen": "2025-12-22T14:14:43.081196",
-    "blocked": false,
-    "calls_enabled": true
-  },
-  "olga": {
-    "name": "Оля",
-    "description": "",
-    "username": "olga",
-    "password_hash": "pbkdf2:sha256:600000$iC968vR0nrduEsJZ$9174d417e10541b083b183004c23173551cedd6087f1f906b8b89577850c0ea3",
-    "avatar_color": "#98D8C8",
-    "avatar": null,
-    "theme": "dark",
-    "created_at": "2025-12-22T14:18:27.391924",
-    "last_seen": "2025-12-22T14:18:27.391935",
-    "blocked": false,
-    "calls_enabled": true
   }
-}
+    }
