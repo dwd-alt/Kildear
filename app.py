@@ -8,11 +8,16 @@ import uuid
 import base64
 import threading
 import time
+import logging
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'kildear-messenger-secret-2024-secure'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Создаем папки
 os.makedirs('static/uploads/media', exist_ok=True)
@@ -24,7 +29,12 @@ socketio = SocketIO(app,
                     async_mode='threading',
                     max_http_buffer_size=50 * 1024 * 1024,
                     ping_timeout=60,
-                    ping_interval=25)
+                    ping_interval=25,
+                    logger=True,
+                    engineio_logger=True)
+
+# Хранилище активных звонков
+active_calls = {}
 
 
 # Функция инициализации базы данных
@@ -37,7 +47,8 @@ def init_database():
         'database/online.json',
         'database/blocks.json',
         'database/pinned.json',
-        'database/saved_chats.json'
+        'database/saved_chats.json',
+        'database/calls.json'
     ]
 
     for filepath in required_files:
@@ -61,8 +72,8 @@ def load_json_file(filepath, default_data=None):
         if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
             with open(filepath, 'r', encoding='utf-8') as f:
                 return json.load(f)
-    except:
-        pass
+    except Exception as e:
+        logger.error(f"Error loading {filepath}: {e}")
     with open(filepath, 'w', encoding='utf-8') as f:
         json.dump(default_data, f, ensure_ascii=False, indent=2)
     return default_data
@@ -73,7 +84,8 @@ def save_json_file(filepath, data):
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         return True
-    except:
+    except Exception as e:
+        logger.error(f"Error saving {filepath}: {e}")
         return False
 
 
@@ -123,6 +135,14 @@ def load_saved_chats():
 
 def save_saved_chats(chats):
     return save_json_file('database/saved_chats.json', chats)
+
+
+def load_calls():
+    return load_json_file('database/calls.json', {})
+
+
+def save_calls(calls):
+    return save_json_file('database/calls.json', calls)
 
 
 def save_avatar(username, base64_data):
@@ -244,6 +264,23 @@ def unpin_message(username, message_id):
 def get_pinned_messages(username):
     pinned = load_pinned()
     return pinned.get(username, [])
+
+
+# Функции для звонков
+def save_call_record(call_data):
+    calls = load_calls()
+    call_id = call_data['call_id']
+    calls[call_id] = call_data
+    save_calls(calls)
+
+
+def get_call_history(username):
+    calls = load_calls()
+    user_calls = []
+    for call_id, call_data in calls.items():
+        if call_data['caller'] == username or call_data['callee'] == username:
+            user_calls.append(call_data)
+    return user_calls
 
 
 # Админские функции
@@ -430,25 +467,40 @@ def api_save_current_chat():
     return jsonify({'success': True})
 
 
-@app.route('/api/get_saved_chat')
-def api_get_saved_chat():
+@app.route('/api/save_chat', methods=['POST'])
+def save_chat():
     if 'username' not in session:
         return jsonify({'error': 'Not authorized'}), 401
+
+    data = request.json
+    chat_with = data.get('chat_with')
+
+    if not chat_with:
+        return jsonify({'error': 'No user specified'}), 400
 
     saved_chats = load_saved_chats()
     username = session['username']
 
-    if username in saved_chats:
-        return jsonify({
-            'success': True,
-            'current_chat': saved_chats[username].get('current_chat'),
-            'last_opened': saved_chats[username].get('last_opened')
-        })
+    if username not in saved_chats:
+        saved_chats[username] = {}
 
-    return jsonify({'success': False, 'current_chat': None})
+    saved_chats[username]['current_chat'] = chat_with
+    saved_chats[username]['last_opened'] = datetime.now().isoformat()
+
+    save_saved_chats(saved_chats)
+    return jsonify({'success': True})
+
+# Маршруты для звонков
+@app.route('/api/get_call_history')
+def api_get_call_history():
+    if 'username' not in session:
+        return jsonify({'error': 'Not authorized'}), 401
+
+    calls = get_call_history(session['username'])
+    return jsonify(calls)
 
 
-# Маршруты
+# Основные маршруты
 @app.route('/')
 def index():
     if 'username' in session:
@@ -1047,7 +1099,7 @@ def serve_uploaded_file(filename):
     return send_from_directory('static/uploads', filename)
 
 
-# WebSocket события
+# WebSocket события для чата
 @socketio.on('connect')
 def handle_connect():
     if 'username' in session:
@@ -1067,7 +1119,7 @@ def handle_connect():
             'last_seen': datetime.now().isoformat()
         }, broadcast=True)
 
-        print(f"✓ Пользователь подключился: {username}")
+        logger.info(f"✓ Пользователь подключился: {username}")
 
 
 @socketio.on('disconnect')
@@ -1090,7 +1142,7 @@ def handle_disconnect():
             'last_seen': datetime.now().isoformat()
         }, broadcast=True)
 
-        print(f"✗ Пользователь отключился: {username}")
+        logger.info(f"✗ Пользователь отключился: {username}")
 
 
 @socketio.on('typing')
@@ -1190,8 +1242,7 @@ def handle_send_message(data):
     except Exception as e:
         print(f"Error emitting to sender: {e}")
 
-    print(
-        f"💬 {'📷' if message_type == 'image' else '🎬' if message_type == 'video' else '😊' if message_type == 'sticker' else '💬'} Сообщение от {sender} → {recipient}")
+    logger.info(f"💬 Сообщение от {sender} → {recipient}")
     return {'success': True}
 
 
@@ -1233,12 +1284,240 @@ def handle_delete_message(data):
                             'deleted_by': username
                         }, room=user)
 
-                    print(f"🗑️ Сообщение {message_id} удалено пользователем {username}")
+                    logger.info(f"🗑️ Сообщение {message_id} удалено пользователем {username}")
                     return
                 else:
                     # Пользователь пытается удалить чужое сообщение без флага delete_for_everyone
                     emit('error', {'message': 'Вы не можете удалить это сообщение'}, room=username)
                     return
+
+
+# WebSocket события для звонков
+@socketio.on('start_call')
+def handle_start_call(data):
+    if 'username' not in session:
+        return
+
+    caller = session['username']
+    callee = data.get('to')
+    call_id = data.get('call_id')
+    call_type = data.get('call_type')
+
+    # Проверяем блокировки
+    if is_user_blocked(caller, callee) or is_user_blocked(callee, caller):
+        emit('call_error', {'message': 'User blocked'}, room=caller)
+        return
+
+    # Проверяем онлайн статус
+    online_users = load_online()
+    if not online_users.get(callee, {}).get('online', False):
+        emit('call_error', {'message': 'User is offline'}, room=caller)
+        return
+
+    # Сохраняем информацию о звонке
+    active_calls[call_id] = {
+        'caller': caller,
+        'callee': callee,
+        'type': call_type,
+        'started_at': datetime.now().isoformat(),
+        'status': 'ringing'
+    }
+
+    # Отправляем запрос на звонок
+    emit('incoming_call', {
+        'caller': caller,
+        'call_id': call_id,
+        'type': call_type,
+        'timestamp': datetime.now().isoformat()
+    }, room=callee)
+
+    # Таймер ожидания ответа (30 секунд)
+    def call_timeout():
+        if call_id in active_calls and active_calls[call_id]['status'] == 'ringing':
+            emit('call_timeout', {'call_id': call_id}, room=caller)
+            del active_calls[call_id]
+
+    socketio.start_background_task(
+        lambda: (time.sleep(30), call_timeout())
+    )
+
+
+@socketio.on('accept_call')
+def handle_accept_call(data):
+    if 'username' not in session:
+        return
+
+    callee = session['username']
+    call_id = data.get('call_id')
+
+    if call_id not in active_calls:
+        emit('call_error', {'message': 'Call not found'}, room=callee)
+        return
+
+    call_info = active_calls[call_id]
+
+    if call_info['callee'] != callee:
+        emit('call_error', {'message': 'Not authorized'}, room=callee)
+        return
+
+    # Обновляем статус звонка
+    active_calls[call_id]['status'] = 'active'
+    active_calls[call_id]['accepted_at'] = datetime.now().isoformat()
+
+    # Отправляем подтверждение звонящему
+    emit('call_accepted', {
+        'call_id': call_id,
+        'callee': callee,
+        'timestamp': datetime.now().isoformat()
+    }, room=call_info['caller'])
+
+    # Отправляем сигнал звонящему о начале звонка
+    emit('call_started', {
+        'call_id': call_id,
+        'timestamp': datetime.now().isoformat()
+    }, room=call_info['caller'])
+
+
+@socketio.on('reject_call')
+def handle_reject_call(data):
+    if 'username' not in session:
+        return
+
+    callee = session['username']
+    call_id = data.get('call_id')
+
+    if call_id not in active_calls:
+        return
+
+    call_info = active_calls[call_id]
+
+    if call_info['callee'] != callee:
+        return
+
+    # Отправляем отклонение звонящему
+    emit('call_rejected', {
+        'call_id': call_id,
+        'reason': data.get('reason', 'User rejected the call')
+    }, room=call_info['caller'])
+
+    # Удаляем информацию о звонке
+    if call_id in active_calls:
+        del active_calls[call_id]
+
+
+@socketio.on('end_call')
+def handle_end_call(data):
+    if 'username' not in session:
+        return
+
+    user = session['username']
+    call_id = data.get('call_id')
+
+    if call_id not in active_calls:
+        return
+
+    call_info = active_calls[call_id]
+
+    if user not in [call_info['caller'], call_info['callee']]:
+        return
+
+    # Определяем, кто завершил звонок
+    ended_by = user
+
+    # Определяем, кому отправить уведомление
+    if user == call_info['caller']:
+        recipient = call_info['callee']
+    else:
+        recipient = call_info['caller']
+
+    # Сохраняем запись о звонке
+    call_record = {
+        'call_id': call_id,
+        'caller': call_info['caller'],
+        'callee': call_info['callee'],
+        'type': call_info['type'],
+        'started_at': call_info.get('started_at'),
+        'ended_at': datetime.now().isoformat(),
+        'duration': data.get('duration', 0),
+        'ended_by': ended_by
+    }
+    save_call_record(call_record)
+
+    # Отправляем уведомление о завершении
+    emit('call_ended', {
+        'call_id': call_id,
+        'ended_by': ended_by,
+        'duration': data.get('duration', 0),
+        'timestamp': datetime.now().isoformat()
+    }, room=recipient)
+
+    # Удаляем из активных звонков
+    if call_id in active_calls:
+        del active_calls[call_id]
+
+
+@socketio.on('webrtc_signal')
+def handle_webrtc_signal(data):
+    if 'username' not in session:
+        return
+
+    sender = session['username']
+    recipient = data.get('to')
+    signal = data.get('signal')
+    call_id = data.get('call_id')
+
+    # Проверяем, что звонок существует
+    if call_id not in active_calls:
+        return
+
+    call_info = active_calls[call_id]
+
+    # Проверяем, что отправитель является участником звонка
+    if sender not in [call_info['caller'], call_info['callee']]:
+        return
+
+    # Проверяем, что получатель является участником звонка
+    if recipient not in [call_info['caller'], call_info['callee']]:
+        return
+
+    # Пересылаем сигнал получателю
+    emit('webrtc_signal', {
+        'from': sender,
+        'signal': signal,
+        'call_id': call_id
+    }, room=recipient)
+
+
+@socketio.on('call_ice_candidate')
+def handle_call_ice_candidate(data):
+    if 'username' not in session:
+        return
+
+    sender = session['username']
+    recipient = data.get('to')
+    candidate = data.get('candidate')
+    call_id = data.get('call_id')
+
+    # Проверяем, что звонок существует
+    if call_id not in active_calls:
+        return
+
+    call_info = active_calls[call_id]
+
+    # Проверяем, что отправитель является участником звонка
+    if sender not in [call_info['caller'], call_info['callee']]:
+        return
+
+    # Проверяем, что получатель является участником звонка
+    if recipient not in [call_info['caller'], call_info['callee']]:
+        return
+
+    # Пересылаем ICE кандидата
+    emit('call_ice_candidate', {
+        'from': sender,
+        'candidate': candidate,
+        'call_id': call_id
+    }, room=recipient)
 
 
 # Админ-консоль
@@ -1291,6 +1570,13 @@ def admin_console():
                 else:
                     print("❌ Использование: rename <старый_юзернейм> <новый_юзернейм>")
 
+            elif command == 'calls':
+                calls = load_calls()
+                print(f"\nВсего звонков: {len(calls)}")
+                for call_id, call_data in list(calls.items())[:10]:
+                    print(
+                        f"  [{call_data.get('started_at', '')}] {call_data['caller']} → {call_data['callee']} ({call_data['type']})")
+
             elif command == 'help' or command == '?':
                 print("\nДоступные команды:")
                 print("  users - показать всех пользователей")
@@ -1298,6 +1584,7 @@ def admin_console():
                 print("  block <user> - заблокировать пользователя")
                 print("  unblock <user> - разблокировать пользователя")
                 print("  rename <old> <new> - изменить имя пользователя")
+                print("  calls - показать историю звонков")
                 print("  exit - выход из админ-консоли")
             else:
                 print("❌ Неизвестная команда. Введите 'help' для списка команд.")
@@ -1334,6 +1621,7 @@ if __name__ == '__main__':
     print("   • Пересылка сообщений")
     print("   • Изменение сообщений")
     print("   • Стикеры")
+    print("   • Аудио/Видео звонки")
     print("=" * 60)
     print("⚙️  Админ-команды:")
     print("   • users - показать всех пользователей")
@@ -1341,6 +1629,7 @@ if __name__ == '__main__':
     print("   • block <user> - заблокировать пользователя")
     print("   • unblock <user> - разблокировать пользователя")
     print("   • rename <old> <new> - изменить имя пользователя")
+    print("   • calls - показать историю звонков")
     print("=" * 60)
     print("⚠️  Нажмите Ctrl+C для остановки")
     print("=" * 60)

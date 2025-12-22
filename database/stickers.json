@@ -1,0 +1,77 @@
+[
+  {
+    "id": "1",
+    "emoji": "😊",
+    "category": "emotions"
+  },
+  {
+    "id": "2",
+    "emoji": "😂",
+    "category": "emotions"
+  },
+  {
+    "id": "3",
+    "emoji": "😍",
+    "category": "emotions"
+  },
+  {
+    "id": "4",
+    "emoji": "😎",
+    "category": "emotions"
+  },
+  {
+    "id": "5",
+    "emoji": "😢",
+    "category": "emotions"
+  },
+  {
+    "id": "6",
+    "emoji": "🐱",
+    "category": "animals"
+  },
+  {
+    "id": "7",
+    "emoji": "🐶",
+    "category": "animals"
+  },
+  {
+    "id": "8",
+    "emoji": "🦊",
+    "category": "animals"
+  },
+  {
+    "id": "9",
+    "emoji": "🐼",
+    "category": "animals"
+  },
+  {
+    "id": "10",
+    "emoji": "🦄",
+    "category": "animals"
+  },
+  {
+    "id": "11",
+    "emoji": "👍",
+    "category": "actions"
+  },
+  {
+    "id": "12",
+    "emoji": "👎",
+    "category": "actions"
+  },
+  {
+    "id": "13",
+    "emoji": "❤️",
+    "category": "actions"
+  },
+  {
+    "id": "14",
+    "emoji": "🔥",
+    "category": "actions"
+  },
+  {
+    "id": "15",
+    "emoji": "🎉",
+    "category": "actions"
+  }
+]
