@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>Kildear</span>
+                </div>
+                <h1>Войдите в аккаунт</h1>
+                <p>С возвращением в Kildear Messenger</p>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" class="auth-form">
+                <div class="form-group">
+                    <label for="username">
+                        <i class="fas fa-at"></i> Юзернейм *
+                    </label>
+                    <input type="text" id="username" name="username" required
+                           placeholder="username" value="{{ request.form.username or '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i> Пароль *
+                    </label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Нет аккаунта? <a href="{{ url_for('register') }}" class="link">Зарегистрироваться</a></p>
+            </div>
+
+            <div class="security-info">
+                <i class="fas fa-shield-alt"></i>
+                <span>Ваши данные защищены. Пароли хранятся в зашифрованном виде.</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

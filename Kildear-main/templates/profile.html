@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="profile-page">
+    <nav class="profile-nav">
+        <a href="{{ url_for('chat') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Назад к чатам</span>
+        </a>
+        <h1>Мой профиль</h1>
+    </nav>
+
+    <div class="profile-content">
+        <!-- Левая колонка -->
+        <div class="profile-left">
+            <div class="profile-card avatar-section">
+                <div class="avatar-preview" id="avatar-preview">
+                    {% if user.avatar %}
+                    <img src="{{ user.avatar }}" alt="{{ user.name }}">
+                    {% else %}
+                    <div class="avatar-placeholder" style="background: {{ user.avatar_color }};">
+                        {{ user.name[0]|upper }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="user-info">
+                    <h2>{{ user.name }}</h2>
+                    <div class="username">@{{ user.username }}</div>
+                    {% if user.description %}
+                    <div class="description">{{ user.description }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="user-stats">
+                    <div class="stat">
+                        <span class="stat-label">Аккаунт создан</span>
+                        <span class="stat-value" id="created-date">{{ user.created_at[:10] }}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Тема оформления</span>
+                        <span class="stat-value">{{ user.theme }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая колонка -->
+        <div class="profile-right">
+            <!-- Редактирование профиля -->
+            <div class="profile-card">
+                <h3><i class="fas fa-edit"></i> Редактировать профиль</h3>
+                <form id="edit-profile-form">
+                    <div class="form-group">
+                        <label for="edit-name">Имя</label>
+                        <input type="text" id="edit-name" value="{{ user.name }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-description">Описание</label>
+                        <textarea id="edit-description">{{ user.description or '' }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Тема оформления</label>
+                        <div class="theme-selector">
+                            <div class="theme-option {{ 'active' if user.theme == 'dark' }}" data-theme="dark">
+                                <div class="theme-preview dark"></div>
+                                <span>Темная</span>
+                            </div>
+                            <div class="theme-option {{ 'active' if user.theme == 'light' }}" data-theme="light">
+                                <div class="theme-preview light"></div>
+                                <span>Светлая</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Аватар</label>
+                        <div class="avatar-actions">
+                            <button type="button" class="btn btn-outline" id="change-avatar">
+                                <i class="fas fa-image"></i> Загрузить аватар
+                            </button>
+                            <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+                            <button type="button" class="btn btn-outline" id="remove-avatar">
+                                <i class="fas fa-trash"></i> Удалить
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Сохранить изменения
+                    </button>
+                </form>
+            </div>
+
+            <!-- Смена пароля -->
+            <div class="profile-card">
+                <h3><i class="fas fa-lock"></i> Сменить пароль</h3>
+                <form id="change-password-form">
+                    <div class="form-group">
+                        <label for="current-password">Текущий пароль</label>
+                        <input type="password" id="current-password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-password">Новый пароль</label>
+                        <input type="password" id="new-password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm-new-password">Подтвердите новый пароль</label>
+                        <input type="password" id="confirm-new-password">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-key"></i> Сменить пароль
+                    </button>
+                </form>
+            </div>
+
+            <!-- Смена юзернейма -->
+            <div class="profile-card">
+                <h3><i class="fas fa-at"></i> Сменить юзернейм</h3>
+                <form id="change-username-form">
+                    <div class="form-group">
+                        <label for="new-username">Новый юзернейм</label>
+                        <input type="text" id="new-username" value="{{ user.username }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password-for-username">Текущий пароль</label>
+                        <input type="password" id="password-for-username">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sync-alt"></i> Сменить юзернейм
+                    </button>
+                </form>
+            </div>
+
+            <!-- Опасная зона -->
+            <div class="profile-card danger-zone">
+                <h3><i class="fas fa-exclamation-triangle"></i> Опасная зона</h3>
+                <p>Эти действия нельзя отменить. Будьте осторожны.</p>
+
+                <div class="danger-actions">
+                    <button class="btn btn-danger btn-block" id="delete-account">
+                        <i class="fas fa-trash"></i> Удалить аккаунт
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='profile.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">
+                    <i class="fas fa-ban"></i>
+                    <span>Kildear</span>
+                </div>
+                <h1>Аккаунт заблокирован</h1>
+                <p>Ваш аккаунт был заблокирован администратором</p>
+            </div>
+
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Доступ к мессенджеру ограничен</span>
+            </div>
+
+            <div class="blocked-info">
+                <p>Ваш аккаунт был заблокирован по следующим причинам:</p>
+                <ul>
+                    <li>Нарушение правил сообщества</li>
+                    <li>Подозрительная активность</li>
+                    <li>Жалобы от других пользователей</li>
+                </ul>
+
+                <p class="contact-admin">
+                    Если вы считаете, что это ошибка, свяжитесь с администратором:
+                    <br>
+                    <strong>admin@kildear.com</strong>
+                </p>
+            </div>
+
+            <div class="auth-footer">
+                <a href="{{ url_for('logout') }}" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-out-alt"></i> Выйти из аккаунта
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.blocked-info {
+    padding: 1.5rem;
+    background: var(--bg-input);
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+}
+
+.blocked-info p {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+.blocked-info ul {
+    margin-left: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+}
+
+.blocked-info li {
+    margin-bottom: 0.5rem;
+}
+
+.contact-admin {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.875rem;
+}
+</style>
+{% endblock %}

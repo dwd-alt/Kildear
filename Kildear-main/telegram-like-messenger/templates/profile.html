@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="profile-page">
+    <!-- Навигация -->
+    <div class="profile-nav">
+        <a href="{{ url_for('chat') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Назад к чатам
+        </a>
+        <h1>Профиль</h1>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="profile-content">
+        <!-- Левая колонка: Аватар и основная информация -->
+        <div class="profile-left">
+            <div class="profile-card">
+                <div class="avatar-section">
+                    <div class="avatar-preview" id="avatar-preview">
+                        {% if user.avatar %}
+                        <img src="{{ user.avatar }}" alt="{{ user.name }}" id="current-avatar">
+                        {% else %}
+                        <div class="avatar-placeholder" style="background: {{ user.avatar_color }};">
+                            {{ user.name[0]|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="avatar-actions">
+                        <button class="btn btn-outline" id="upload-avatar-btn">
+                            <i class="fas fa-upload"></i> Сменить фото
+                        </button>
+                        <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+
+                <div class="user-info">
+                    <h2>{{ user.name }}</h2>
+                    <p class="username">@{{ user.username }}</p>
+                    {% if user.description %}
+                    <p class="description">{{ user.description }}</p>
+                    {% endif %}
+
+                    <div class="user-stats">
+                        <div class="stat">
+                            <span class="stat-label">Зарегистрирован:</span>
+                            <span class="stat-value">{{ user.created_at[:10] }}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Тема:</span>
+                            <span class="stat-value" id="theme-display">{{ 'Тёмная' if user.theme == 'dark' else 'Светлая' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Настройки темы -->
+            <div class="profile-card">
+                <h3><i class="fas fa-palette"></i> Настройки темы</h3>
+                <div class="theme-selector">
+                    <div class="theme-option {% if user.theme == 'dark' %}active{% endif %}" data-theme="dark">
+                        <div class="theme-preview dark">
+                            <div class="preview-header"></div>
+                            <div class="preview-body"></div>
+                        </div>
+                        <span>Тёмная</span>
+                    </div>
+                    <div class="theme-option {% if user.theme == 'light' %}active{% endif %}" data-theme="light">
+                        <div class="theme-preview light">
+                            <div class="preview-header"></div>
+                            <div class="preview-body"></div>
+                        </div>
+                        <span>Светлая</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая колонка: Настройки -->
+        <div class="profile-right">
+            <!-- Редактирование профиля -->
+            <div class="profile-card">
+                <h3><i class="fas fa-user-edit"></i> Редактировать профиль</h3>
+                <form id="edit-profile-form">
+                    <div class="form-group">
+                        <label for="name">Имя</label>
+                        <input type="text" id="name" value="{{ user.name }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Описание</label>
+                        <textarea id="description" rows="3">{{ user.description or '' }}</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Сохранить изменения
+                    </button>
+                </form>
+            </div>
+
+            <!-- Смена пароля -->
+            <div class="profile-card">
+                <h3><i class="fas fa-key"></i> Смена пароля</h3>
+                <form id="change-password-form">
+                    <div class="form-group">
+                        <label for="current-password">Текущий пароль</label>
+                        <input type="password" id="current-password" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-password">Новый пароль</label>
+                        <input type="password" id="new-password" required>
+                        <div class="password-hint">Минимум 6 символов</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm-password">Подтвердите пароль</label>
+                        <input type="password" id="confirm-password" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-lock"></i> Сменить пароль
+                    </button>
+                </form>
+            </div>
+
+            <!-- Смена юзернейма -->
+            <div class="profile-card">
+                <h3><i class="fas fa-at"></i> Смена юзернейма</h3>
+                <form id="change-username-form">
+                    <div class="form-group">
+                        <label for="new-username">Новый юзернейм</label>
+                        <div class="input-with-prefix">
+                            <span class="prefix">@</span>
+                            <input type="text" id="new-username" required>
+                        </div>
+                        <div class="password-hint">Только латинские буквы, цифры и подчёркивания</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username-password">Пароль для подтверждения</label>
+                        <input type="password" id="username-password" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sync"></i> Сменить юзернейм
+                    </button>
+                </form>
+            </div>
+
+            <!-- Опасная зона -->
+            <div class="profile-card danger-zone">
+                <h3><i class="fas fa-exclamation-triangle"></i> Опасная зона</h3>
+                <p>Эти действия нельзя отменить. Будьте осторожны!</p>
+
+                <div class="danger-actions">
+                    <button class="btn btn-danger" id="delete-chats-btn">
+                        <i class="fas fa-trash"></i> Удалить все чаты
+                    </button>
+                    <button class="btn btn-danger" id="delete-account-btn">
+                        <i class="fas fa-user-slash"></i> Удалить аккаунт
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Скрытые поля -->
+<input type="hidden" id="current-user" value="{{ user.username }}">
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='profile.js') }}"></script>
+{% endblock %}
