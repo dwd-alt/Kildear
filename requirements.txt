@@ -1,6 +1,10 @@
 Flask==2.3.3
 Flask-SocketIO==5.3.4
-python-socketio==5.9.0
-eventlet==0.33.3
+eventlet==0.33.3  # или gevent
+cryptography==41.0.7
+pycryptodome==3.19.0
 Werkzeug==2.3.7
-cryptography==41.0.5
+python-socketio==5.9.0
+python-engineio==4.5.1
+Pillow==10.1.0
+bcrypt==4.0.1
