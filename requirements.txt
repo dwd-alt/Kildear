@@ -6,4 +6,4 @@ pycryptodome==3.19.0
 Werkzeug==2.3.7
 python-socketio==5.9.0
 python-engineio==4.5.1
-Pillow==10.0.0  # Исправленная версия для Python 3.13
+Pillow==10.3.0  # Измените на эту версию
