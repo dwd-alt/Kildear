@@ -1,1 +1,15 @@
-{}
+{
+  "admin": {
+    "name": "Рома",
+    "description": "",
+    "username": "admin",
+    "password_hash": "pbkdf2:sha256:600000$8IfXpfJEBpivWseb$ea30bd1649cd33e245419aa7ca56cd0505a297cc9d0f983a436187b414fdb194",
+    "avatar_color": "#96CEB4",
+    "avatar": "/static/uploads/avatars/admin_1766387726.png",
+    "theme": "dark",
+    "created_at": "2025-12-22T14:13:22.616805",
+    "last_seen": "2025-12-22T14:13:22.616817",
+    "blocked": false,
+    "calls_enabled": true
+  }
+    }

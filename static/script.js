@@ -24,10 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let isMuted = false;
     let isVideoMuted = false;
 
-    // Переменные для шифрования
-    let encryptionKey = null;
-    let encryptionEnabled = false;
-
     // Элементы DOM
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
@@ -67,196 +63,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const localVideo = document.getElementById('local-video');
     const remoteVideo = document.getElementById('remote-video');
 
-    // Элементы для шифрования
-    const encryptionStatus = document.getElementById('encryption-status');
-    const encryptionIndicator = document.createElement('div');
-    encryptionIndicator.className = 'encryption-indicator';
-    encryptionIndicator.innerHTML = '<i class="fas fa-lock"></i> End-to-End шифрование';
-
-    // ============ ШИФРОВАНИЕ ============
-    class EncryptionManager {
-        constructor() {
-            this.key = null;
-            this.iv = null;
-            this.enabled = false;
-        }
-
-        async init(username) {
-            try {
-                // Генерируем ключ на основе username и secret salt
-                const salt = await this.getUserSalt(username);
-                const keyMaterial = await window.crypto.subtle.importKey(
-                    'raw',
-                    new TextEncoder().encode(username + '_kildear_secret_2024'),
-                    { name: 'PBKDF2' },
-                    false,
-                    ['deriveKey']
-                );
-
-                this.key = await window.crypto.subtle.deriveKey(
-                    {
-                        name: 'PBKDF2',
-                        salt: salt,
-                        iterations: 100000,
-                        hash: 'SHA-256'
-                    },
-                    keyMaterial,
-                    { name: 'AES-GCM', length: 256 },
-                    true,
-                    ['encrypt', 'decrypt']
-                );
-
-                this.enabled = true;
-                console.log('✅ Шифрование инициализировано');
-                this.showEncryptionStatus(true);
-
-                // Сохраняем ключ в localStorage для восстановления
-                localStorage.setItem('encryption_key_' + username, await this.exportKey());
-
-                return true;
-            } catch (error) {
-                console.error('Ошибка инициализации шифрования:', error);
-                this.showEncryptionStatus(false);
-                return false;
-            }
-        }
-
-        async getUserSalt(username) {
-            // Генерируем salt на основе username
-            const encoder = new TextEncoder();
-            const data = encoder.encode(username + '_kildear_salt');
-            const hash = await window.crypto.subtle.digest('SHA-256', data);
-            return new Uint8Array(hash.slice(0, 16));
-        }
-
-        async exportKey() {
-            const exported = await window.crypto.subtle.exportKey('raw', this.key);
-            return btoa(String.fromCharCode(...new Uint8Array(exported)));
-        }
-
-        async importKey(base64Key) {
-            const keyData = Uint8Array.from(atob(base64Key), c => c.charCodeAt(0));
-            return await window.crypto.subtle.importKey(
-                'raw',
-                keyData,
-                { name: 'AES-GCM', length: 256 },
-                true,
-                ['encrypt', 'decrypt']
-            );
-        }
-
-        async encrypt(text) {
-            if (!this.enabled || !this.key) return text;
-
-            try {
-                this.iv = window.crypto.getRandomValues(new Uint8Array(12));
-                const encoder = new TextEncoder();
-                const data = encoder.encode(text);
-
-                const encrypted = await window.crypto.subtle.encrypt(
-                    {
-                        name: 'AES-GCM',
-                        iv: this.iv
-                    },
-                    this.key,
-                    data
-                );
-
-                // Объединяем iv и зашифрованные данные
-                const encryptedArray = new Uint8Array(encrypted);
-                const result = new Uint8Array(this.iv.length + encryptedArray.length);
-                result.set(this.iv);
-                result.set(encryptedArray, this.iv.length);
-
-                return btoa(String.fromCharCode(...result));
-            } catch (error) {
-                console.error('Ошибка шифрования:', error);
-                return text;
-            }
-        }
-
-        async decrypt(encryptedBase64) {
-            if (!this.enabled || !this.key) return encryptedBase64;
-
-            try {
-                const encryptedData = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
-
-                // Извлекаем iv (первые 12 байт)
-                const iv = encryptedData.slice(0, 12);
-                const data = encryptedData.slice(12);
-
-                const decrypted = await window.crypto.subtle.decrypt(
-                    {
-                        name: 'AES-GCM',
-                        iv: iv
-                    },
-                    this.key,
-                    data
-                );
-
-                const decoder = new TextDecoder();
-                return decoder.decode(decrypted);
-            } catch (error) {
-                console.error('Ошибка дешифрования:', error);
-                return encryptedBase64;
-            }
-        }
-
-        showEncryptionStatus(enabled) {
-            if (encryptionStatus) {
-                encryptionStatus.innerHTML = enabled ?
-                    '<i class="fas fa-lock"></i> Сообщения зашифрованы' :
-                    '<i class="fas fa-unlock"></i> Шифрование недоступно';
-                encryptionStatus.className = enabled ? 'encryption-on' : 'encryption-off';
-            }
-        }
-
-        generateFingerprint(username) {
-            // Генерируем отпечаток ключа для верификации
-            const hash = CryptoJS.SHA256(username + '_kildear_2024').toString();
-            return hash.substring(0, 16).toUpperCase().match(/.{1,4}/g).join(':');
-        }
-    }
-
-    // Инициализируем менеджер шифрования
-    const encryptionManager = new EncryptionManager();
-
-    // ============ ИНИЦИАЛИЗАЦИЯ ШИФРОВАНИЯ ============
-    async function initEncryption() {
-        if (window.crypto && window.crypto.subtle) {
-            await encryptionManager.init(currentUser);
-
-            // Показываем уведомление о шифровании
-            showNotification('✅ Ваши сообщения защищены end-to-end шифрованием', 'success');
-
-            // Добавляем индикатор в заголовок чата
-            if (chatHeader) {
-                chatHeader.appendChild(encryptionIndicator);
-            }
-        } else {
-            console.warn('Шифрование не поддерживается в этом браузере');
-            showNotification('⚠️ Шифрование недоступно в этом браузере', 'warning');
-        }
-    }
-
     // ============ ОСНОВНЫЕ ФУНКЦИИ ============
 
     // Инициализация WebSocket
     function initWebSocket() {
         socket.on('connect', () => {
-            console.log('✅ Подключен к серверу');
+            console.log('✓ Подключен к серверу');
             showNotification('Подключено к серверу', 'success');
             loadContacts();
 
             // Восстанавливаем последний чат
             restoreLastChat();
-
-            // Инициализируем шифрование
-            initEncryption();
         });
 
         socket.on('disconnect', () => {
-            console.log('❌ Отключен от сервера');
+            console.log('✗ Отключен от сервера');
             showNotification('Нет подключения к серверу', 'error');
         });
 
@@ -538,9 +359,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <button class="btn-icon" id="view-profile-btn" title="Просмотр профиля">
                     <i class="fas fa-user"></i>
                 </button>
-                <button class="btn-icon" id="encryption-info-btn" title="Информация о шифровании">
-                    <i class="fas fa-lock"></i>
-                </button>
             </div>
         `;
 
@@ -550,7 +368,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const videoCallBtn = document.getElementById('video-call-btn');
             const blockBtn = document.getElementById('block-user-btn');
             const viewProfileBtn = document.getElementById('view-profile-btn');
-            const encryptionInfoBtn = document.getElementById('encryption-info-btn');
 
             if (voiceCallBtn) {
                 voiceCallBtn.addEventListener('click', () => startCall('audio'));
@@ -566,79 +383,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.open(`/profile/${currentRecipient}`, '_blank');
                 });
             }
-            if (encryptionInfoBtn) {
-                encryptionInfoBtn.addEventListener('click', showEncryptionInfo);
-            }
         }, 100);
 
         // Проверяем онлайн статус
         checkOnlineStatus(currentRecipient);
-    }
-
-    function showEncryptionInfo() {
-        const fingerprint = encryptionManager.generateFingerprint(currentUser);
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3><i class="fas fa-lock"></i> Безопасность чата</h3>
-                    <button class="btn-icon close-modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="security-info">
-                        <div class="security-item">
-                            <i class="fas fa-shield-alt"></i>
-                            <div>
-                                <h4>End-to-End Шифрование</h4>
-                                <p>Все сообщения в этом чате зашифрованы с использованием алгоритма AES-256-GCM.</p>
-                            </div>
-                        </div>
-                        <div class="security-item">
-                            <i class="fas fa-key"></i>
-                            <div>
-                                <h4>Ключ шифрования</h4>
-                                <p>Уникальный ключ генерируется на основе вашего юзернейма и никогда не покидает ваше устройство.</p>
-                            </div>
-                        </div>
-                        <div class="security-item">
-                            <i class="fas fa-fingerprint"></i>
-                            <div>
-                                <h4>Отпечаток ключа</h4>
-                                <p class="fingerprint">${fingerprint}</p>
-                                <small>Сравните этот отпечаток с собеседником для подтверждения безопасности.</small>
-                            </div>
-                        </div>
-                        <div class="security-item">
-                            <i class="fas fa-server"></i>
-                            <div>
-                                <h4>Конфиденциальность</h4>
-                                <p>Сервер не имеет доступа к содержимому ваших сообщений. Мы не храним и не передаем ключи шифрования.С любовью разработчик Kildear</p>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary close-modal">Понятно</button>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(modal);
-
-        modal.querySelectorAll('.close-modal').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.body.removeChild(modal);
-            });
-        });
-
-        // Закрытие по клику вне модального окна
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                document.body.removeChild(modal);
-            }
-        });
     }
 
     function updateActiveContact() {
@@ -650,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ============ ОТПРАВКА СООБЩЕНИЙ С ШИФРОВАНИЕМ ============
+    // ============ ОТПРАВКА СООБЩЕНИЙ ============
     function initMessageForm() {
         if (!messageInput || !sendMessageBtn) return;
 
@@ -685,12 +433,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Инициализация вложений
         initAttachments();
-
-        // Инициализация стикеров
-        initStickers();
     }
 
-    async function sendMessage() {
+    function sendMessage() {
         const messageText = messageInput ? messageInput.value.trim() : '';
 
         if ((!messageText && !currentAttachment) || !currentRecipient) {
@@ -709,17 +454,6 @@ document.addEventListener('DOMContentLoaded', function() {
             type: 'text'
         };
 
-        // Шифруем текстовое сообщение
-        if (messageText && !currentAttachment) {
-            try {
-                messageData.message = await encryptionManager.encrypt(messageText);
-                messageData.encrypted = true;
-            } catch (error) {
-                console.error('Ошибка шифрования:', error);
-                messageData.encrypted = false;
-            }
-        }
-
         // Если есть вложение
         if (currentAttachment) {
             messageData.type = currentAttachment.type;
@@ -727,7 +461,7 @@ document.addEventListener('DOMContentLoaded', function() {
             messageData.file_size = currentAttachment.file.size;
 
             const reader = new FileReader();
-            reader.onload = async function(e) {
+            reader.onload = function(e) {
                 const base64Data = e.target.result;
                 if (base64Data.length > 50 * 1024 * 1024) {
                     showNotification('Файл слишком большой (максимум 15MB)', 'error');
@@ -777,150 +511,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (messageInput) messageInput.value = '';
                 removeAttachment();
                 loadContacts();
-            }
-        });
-    }
-
-    // ============ СТИКЕРЫ ============
-    function initStickers() {
-        const stickerBtn = document.createElement('button');
-        stickerBtn.className = 'btn-icon';
-        stickerBtn.id = 'stickers-btn';
-        stickerBtn.title = 'Стикеры';
-        stickerBtn.innerHTML = '<i class="fas fa-smile"></i>';
-
-        const attachmentButtons = document.querySelector('.attachment-buttons');
-        if (attachmentButtons) {
-            attachmentButtons.appendChild(stickerBtn);
-        }
-
-        // Создаем контейнер для стикеров
-        const stickersContainer = document.createElement('div');
-        stickersContainer.id = 'stickers-container';
-        stickersContainer.className = 'stickers-container';
-
-        // Список стикеров
-        const stickers = {
-            'emotions': ['😊', '😂', '😍', '😎', '🥰', '😘', '🤔', '🥺', '😭', '😡', '🤯', '🥳', '😇', '🤠'],
-            'animals': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸'],
-            'food': ['🍕', '🍔', '🍟', '🌭', '🍿', '🧁', '🍩', '🍪', '🍫', '🍬', '🍭', '🍮', '🍯', '🍎'],
-            'objects': ['📱', '💻', '🎮', '📷', '🎥', '🎧', '🎸', '🎺', '📚', '✏️', '🎨', '⚽', '🏀', '🎾'],
-            'symbols': ['❤️', '💙', '💚', '💛', '💜', '🖤', '💖', '💝', '✨', '🌟', '💫', '⭐', '🔥', '🌈']
-        };
-
-        // Категории
-        const categories = document.createElement('div');
-        categories.className = 'sticker-categories';
-
-        Object.keys(stickers).forEach(category => {
-            const btn = document.createElement('button');
-            btn.className = 'sticker-category-btn';
-            btn.dataset.category = category;
-            btn.innerHTML = getCategoryIcon(category);
-            categories.appendChild(btn);
-        });
-        stickersContainer.appendChild(categories);
-
-        // Сетка стикеров
-        const grid = document.createElement('div');
-        grid.className = 'stickers-grid';
-        stickersContainer.appendChild(grid);
-
-        // Добавляем в DOM
-        const messageInputWrapper = document.querySelector('.message-input-wrapper');
-        if (messageInputWrapper) {
-            messageInputWrapper.parentNode.insertBefore(stickersContainer, messageInputWrapper);
-        }
-
-        // Показываем первую категорию
-        showStickers('emotions');
-
-        // Обработчики событий
-        stickerBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            stickersContainer.style.display =
-                stickersContainer.style.display === 'block' ? 'none' : 'block';
-        });
-
-        categories.addEventListener('click', (e) => {
-            if (e.target.classList.contains('sticker-category-btn')) {
-                const category = e.target.dataset.category;
-                showStickers(category);
-
-                // Активная кнопка
-                categories.querySelectorAll('.sticker-category-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                e.target.classList.add('active');
-            }
-        });
-
-        // Закрытие по клику вне
-        document.addEventListener('click', (e) => {
-            if (!stickersContainer.contains(e.target) && e.target !== stickerBtn) {
-                stickersContainer.style.display = 'none';
-            }
-        });
-    }
-
-    function showStickers(category) {
-        const grid = document.querySelector('.stickers-grid');
-        if (!grid) return;
-
-        grid.innerHTML = '';
-
-        const stickersList = {
-            'emotions': ['😊', '😂', '😍', '😎', '🥰', '😘', '🤔', '🥺', '😭', '😡', '🤯', '🥳', '😇', '🤠'],
-            'animals': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸'],
-            'food': ['🍕', '🍔', '🍟', '🌭', '🍿', '🧁', '🍩', '🍪', '🍫', '🍬', '🍭', '🍮', '🍯', '🍎'],
-            'objects': ['📱', '💻', '🎮', '📷', '🎥', '🎧', '🎸', '🎺', '📚', '✏️', '🎨', '⚽', '🏀', '🎾'],
-            'symbols': ['❤️', '💙', '💚', '💛', '💜', '🖤', '💖', '💝', '✨', '🌟', '💫', '⭐', '🔥', '🌈']
-        };
-
-        if (stickersList[category]) {
-            stickersList[category].forEach(sticker => {
-                const stickerEl = document.createElement('div');
-                stickerEl.className = 'sticker-item';
-                stickerEl.innerHTML = `
-                    <div class="sticker-emoji">${sticker}</div>
-                `;
-
-                stickerEl.addEventListener('click', async () => {
-                    sendSticker(sticker);
-                    document.getElementById('stickers-container').style.display = 'none';
-                });
-
-                grid.appendChild(stickerEl);
-            });
-        }
-    }
-
-    function getCategoryIcon(category) {
-        const icons = {
-            'emotions': '😊',
-            'animals': '🐶',
-            'food': '🍕',
-            'objects': '📱',
-            'symbols': '❤️'
-        };
-        return icons[category] || '😊';
-    }
-
-    async function sendSticker(sticker) {
-        if (!currentRecipient) {
-            showNotification('Выберите чат для отправки стикера', 'info');
-            return;
-        }
-
-        const messageData = {
-            recipient: currentRecipient,
-            message: sticker,
-            type: 'sticker'
-        };
-
-        socket.emit('send_message', messageData, (response) => {
-            if (response && response.error) {
-                showNotification('Ошибка отправки: ' + response.error, 'error');
             }
         });
     }
@@ -1016,7 +606,7 @@ document.addEventListener('DOMContentLoaded', function() {
         else return (bytes / 1048576).toFixed(1) + ' MB';
     }
 
-    // ============ ЗАГРУЗКА И ОТОБРАЖЕНИЕ СООБЩЕНИЙ С ДЕШИФРОВАНИЕМ ============
+    // ============ ЗАГРУЗКА И ОТОБРАЖЕНИЕ СООБЩЕНИЙ ============
     function loadMessages() {
         if (!currentRecipient) return;
 
@@ -1029,7 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error loading messages:', error));
     }
 
-    async function displayMessages(messages) {
+    function displayMessages(messages) {
         if (!messagesContainer) return;
 
         messagesContainer.innerHTML = '';
@@ -1048,14 +638,14 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        for (const message of messages) {
-            await addMessageToDOM(message);
-        }
+        messages.forEach(message => {
+            addMessageToDOM(message);
+        });
 
         scrollToBottom();
     }
 
-    async function addMessageToDOM(message) {
+    function addMessageToDOM(message) {
         if (!messagesContainer) return;
 
         const isOutgoing = message.sender === currentUser;
@@ -1068,17 +658,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const avatarText = isOutgoing ? currentUserName[0].toUpperCase() : currentRecipientName[0].toUpperCase();
 
         let messageContent = '';
-        let displayMessage = message.message;
-
-        // Дешифровываем сообщение если оно зашифровано
-        if (message.encrypted && encryptionManager.enabled) {
-            try {
-                displayMessage = await encryptionManager.decrypt(message.message);
-            } catch (error) {
-                console.error('Ошибка дешифрования:', error);
-                displayMessage = '🔒 [Зашифрованное сообщение]';
-            }
-        }
 
         if (message.deleted) {
             messageContent = `
@@ -1091,7 +670,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="message-media">
                     <img src="/static/uploads/${message.file_path}" alt="Изображение" onclick="openMediaViewer('/static/uploads/${message.file_path}', 'image')">
                 </div>
-                ${displayMessage ? `<div class="media-caption">${escapeHtml(displayMessage)}</div>` : ''}
+                ${message.message ? `<div class="media-caption">${escapeHtml(message.message)}</div>` : ''}
             `;
         } else if (message.type === 'video') {
             messageContent = `
@@ -1100,28 +679,23 @@ document.addEventListener('DOMContentLoaded', function() {
                         <source src="/static/uploads/${message.file_path}" type="video/mp4">
                     </video>
                 </div>
-                ${displayMessage ? `<div class="media-caption">${escapeHtml(displayMessage)}</div>` : ''}
+                ${message.message ? `<div class="media-caption">${escapeHtml(message.message)}</div>` : ''}
             `;
         } else if (message.type === 'sticker') {
             messageContent = `
                 <div class="message-sticker">
-                    <div class="sticker-emoji">${escapeHtml(displayMessage)}</div>
+                    <div class="sticker-emoji">${escapeHtml(message.message)}</div>
                 </div>
             `;
         } else {
-            messageContent = `<div class="message-text">${escapeHtml(displayMessage)}</div>`;
+            messageContent = `<div class="message-text">${escapeHtml(message.message)}</div>`;
         }
-
-        // Добавляем индикатор шифрования
-        const encryptionIndicator = message.encrypted ?
-            '<div class="encryption-badge"><i class="fas fa-lock"></i></div>' : '';
 
         messageElement.innerHTML = `
             <div class="message-avatar" style="background: ${avatarColor}">
                 ${avatarText}
             </div>
             <div class="message-content">
-                ${encryptionIndicator}
                 <div class="message-bubble">
                     ${messageContent}
                     <div class="message-time">${time}</div>
@@ -1133,11 +707,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ============ WEBSOCKET ОБРАБОТЧИКИ ============
-    async function handleNewMessage(message) {
+    function handleNewMessage(message) {
         if (!message) return;
 
         if (message.sender === currentRecipient) {
-            await addMessageToDOM(message);
+            addMessageToDOM(message);
             allMessages.push(message);
             scrollToBottom();
             playMessageSound();
@@ -1148,34 +722,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    async function handleMessageSent(message) {
+    function handleMessageSent(message) {
         if (!message) return;
 
         if (message.recipient === currentRecipient) {
-            await addMessageToDOM(message);
+            addMessageToDOM(message);
             allMessages.push(message);
             scrollToBottom();
             loadContacts();
         }
     }
 
-    async function handleMessageEdited(data) {
+    function handleMessageEdited(data) {
         if (!data) return;
 
         const messageElement = document.querySelector(`[data-message-id="${data.message_id}"]`);
         if (messageElement) {
             const messageText = messageElement.querySelector('.message-text');
             if (messageText) {
-                // Дешифровываем если нужно
-                let newText = data.new_text;
-                if (data.encrypted && encryptionManager.enabled) {
-                    try {
-                        newText = await encryptionManager.decrypt(data.new_text);
-                    } catch (error) {
-                        newText = '🔒 [Зашифрованное сообщение]';
-                    }
-                }
-                messageText.textContent = newText;
+                messageText.textContent = data.new_text;
             }
         }
     }
@@ -1218,7 +783,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ============ ИСПРАВЛЕННЫЕ ЗВОНКИ ============
+    // ============ ЗВОНКИ ============
     function initCallSystem() {
         // Обработчики кнопок звонка
         document.addEventListener('click', function(e) {
@@ -1237,23 +802,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (activeCall) {
-            showNotification('Уже есть активный звонк', 'error');
+            showNotification('Уже есть активный звонок', 'error');
             return;
         }
 
         try {
-            // Запрашиваем разрешение на доступ к медиаустройствам
             const constraints = {
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    autoGainControl: true
-                },
-                video: type === 'video' ? {
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
-                    frameRate: { ideal: 30 }
-                } : false
+                audio: true,
+                video: type === 'video'
             };
 
             localStream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -1325,16 +881,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const constraints = {
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    autoGainControl: true
-                },
-                video: activeCall.type === 'video' ? {
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
-                    frameRate: { ideal: 30 }
-                } : false
+                audio: true,
+                video: activeCall.type === 'video'
             };
 
             localStream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -1351,10 +899,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 peerConnection.addTrack(track, localStream);
             });
 
-            const offer = await peerConnection.createOffer({
-                offerToReceiveAudio: true,
-                offerToReceiveVideo: activeCall.type === 'video'
-            });
+            const offer = await peerConnection.createOffer();
             await peerConnection.setLocalDescription(offer);
 
             socket.emit('webrtc_signal', {
@@ -1407,10 +952,7 @@ document.addEventListener('DOMContentLoaded', function() {
             peerConnection.addTrack(track, localStream);
         });
 
-        peerConnection.createOffer({
-            offerToReceiveAudio: true,
-            offerToReceiveVideo: activeCall.type === 'video'
-        })
+        peerConnection.createOffer()
             .then(offer => peerConnection.setLocalDescription(offer))
             .then(() => {
                 socket.emit('webrtc_signal', {
@@ -1418,10 +960,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     call_id: activeCall.id,
                     signal: peerConnection.localDescription
                 });
-            })
-            .catch(error => {
-                console.error('Ошибка создания offer:', error);
-                endCall();
             });
     }
 
@@ -1469,17 +1007,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         call_id: activeCall.id,
                         signal: peerConnection.localDescription
                     });
-                })
-                .catch(error => {
-                    console.error('Ошибка обработки offer:', error);
-                    endCall();
                 });
         } else if (signal.type === 'answer') {
-            peerConnection.setRemoteDescription(new RTCSessionDescription(signal))
-                .catch(error => {
-                    console.error('Ошибка установки remote description:', error);
-                    endCall();
-                });
+            peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
         }
     }
 
@@ -1487,29 +1017,19 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!activeCall || activeCall.id !== data.call_id || !peerConnection) return;
 
         const candidate = new RTCIceCandidate(data.candidate);
-        peerConnection.addIceCandidate(candidate)
-            .catch(error => {
-                console.error('Ошибка добавления ICE кандидата:', error);
-            });
+        peerConnection.addIceCandidate(candidate);
     }
 
     function createPeerConnection() {
         const configuration = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'stun:stun3.l.google.com:19302' },
-                { urls: 'stun:stun4.l.google.com:19302' }
-            ],
-            iceCandidatePoolSize: 10,
-            bundlePolicy: 'max-bundle',
-            rtcpMuxPolicy: 'require'
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
         };
 
         peerConnection = new RTCPeerConnection(configuration);
 
-        // Обработка ICE кандидатов
         peerConnection.onicecandidate = (event) => {
             if (event.candidate) {
                 const recipient = activeCall.direction === 'outgoing' ? activeCall.callee : activeCall.caller;
@@ -1521,59 +1041,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
 
-        // Обработка входящего потока
         peerConnection.ontrack = (event) => {
-            if (!remoteStream) {
-                remoteStream = new MediaStream();
-            }
-            event.streams[0].getTracks().forEach(track => {
-                remoteStream.addTrack(track);
-            });
-
+            remoteStream = event.streams[0];
             if (remoteVideo) {
                 remoteVideo.srcObject = remoteStream;
-                remoteVideo.play().catch(e => console.error('Ошибка воспроизведения видео:', e));
             }
         };
 
-        // Обработка изменения состояния соединения
         peerConnection.onconnectionstatechange = () => {
-            console.log('Состояние соединения:', peerConnection.connectionState);
-            if (peerConnection.connectionState === 'failed' ||
-                peerConnection.connectionState === 'disconnected' ||
-                peerConnection.connectionState === 'closed') {
-                console.log('Соединение прервано');
+            if (peerConnection.connectionState === 'failed') {
                 endCall();
             }
         };
-
-        // Обработка ICE состояния
-        peerConnection.oniceconnectionstatechange = () => {
-            console.log('ICE состояние:', peerConnection.iceConnectionState);
-            if (peerConnection.iceConnectionState === 'failed' ||
-                peerConnection.iceConnectionState === 'disconnected' ||
-                peerConnection.iceConnectionState === 'closed') {
-                console.log('ICE соединение прервано');
-                endCall();
-            }
-        };
-
-        // Обработка ICE gathering состояния
-        peerConnection.onicegatheringstatechange = () => {
-            console.log('ICE gathering состояние:', peerConnection.iceGatheringState);
-        };
-
-        // Обработка сигнального состояния
-        peerConnection.onsignalingstatechange = () => {
-            console.log('Сигнальное состояние:', peerConnection.signalingState);
-        };
-
-        // Добавляем локальный поток
-        if (localStream) {
-            localStream.getTracks().forEach(track => {
-                peerConnection.addTrack(track, localStream);
-            });
-        }
     }
 
     function showCallInterface(type) {
@@ -1591,10 +1070,9 @@ document.addEventListener('DOMContentLoaded', function() {
             muteAudioBtn.style.display = 'none';
             muteVideoBtn.style.display = 'none';
 
-            if (localStream) {
+            if (localStream && activeCall.type === 'video') {
                 localVideo.srcObject = localStream;
-                localVideo.play().catch(e => console.error('Ошибка воспроизведения локального видео:', e));
-                localVideo.style.display = activeCall.type === 'video' ? 'block' : 'none';
+                localVideo.style.display = 'block';
             } else {
                 localVideo.style.display = 'none';
             }
@@ -1625,13 +1103,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (localStream) {
                 localVideo.srcObject = localStream;
-                localVideo.play().catch(e => console.error('Ошибка воспроизведения локального видео:', e));
                 localVideo.style.display = activeCall.type === 'video' ? 'block' : 'none';
             }
-
-            if (remoteVideo && remoteVideo.srcObject) {
-                remoteVideo.style.display = activeCall.type === 'video' ? 'block' : 'none';
-            }
+            remoteVideo.style.display = activeCall.type === 'video' ? 'block' : 'none';
 
             startCallTimer();
         }
@@ -1642,14 +1116,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (callTimer) clearInterval(callTimer);
 
         callTimer = setInterval(() => {
-            if (callStartTime) {
-                const elapsed = Date.now() - callStartTime;
-                const minutes = Math.floor(elapsed / 60000);
-                const seconds = Math.floor((elapsed % 60000) / 1000);
-                const timerStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                if (callTimerElement) {
-                    callTimerElement.textContent = timerStr;
-                }
+            const elapsed = Date.now() - callStartTime;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            const timerStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            if (callTimerElement) {
+                callTimerElement.textContent = timerStr;
             }
         }, 1000);
     }
@@ -1666,7 +1138,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 muteAudioBtn.innerHTML = isMuted ?
                     '<i class="fas fa-microphone-slash"></i>' :
                     '<i class="fas fa-microphone"></i>';
-                muteAudioBtn.title = isMuted ? 'Включить микрофон' : 'Отключить микрофон';
             }
         }
     }
@@ -1683,14 +1154,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 muteVideoBtn.innerHTML = isVideoMuted ?
                     '<i class="fas fa-video-slash"></i>' :
                     '<i class="fas fa-video"></i>';
-                muteVideoBtn.title = isVideoMuted ? 'Включить камеру' : 'Отключить камеру';
             }
         }
     }
 
     function resetCall() {
-        console.log('Сброс звонка...');
-
         if (callTimer) {
             clearInterval(callTimer);
             callTimer = null;
@@ -1699,16 +1167,12 @@ document.addEventListener('DOMContentLoaded', function() {
         callStartTime = null;
 
         if (localStream) {
-            localStream.getTracks().forEach(track => {
-                track.stop();
-            });
+            localStream.getTracks().forEach(track => track.stop());
             localStream = null;
         }
 
         if (remoteStream) {
-            remoteStream.getTracks().forEach(track => {
-                track.stop();
-            });
+            remoteStream.getTracks().forEach(track => track.stop());
             remoteStream = null;
         }
 
@@ -1723,14 +1187,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (callModal) {
             callModal.style.display = 'none';
-        }
-
-        // Очищаем видео элементы
-        if (localVideo) {
-            localVideo.srcObject = null;
-        }
-        if (remoteVideo) {
-            remoteVideo.srcObject = null;
         }
     }
 
@@ -1967,5 +1423,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    console.log('✅ Kildear Messenger инициализирован с шифрованием и стикерами');
+    console.log('Kildear Messenger инициализирован');
 });
