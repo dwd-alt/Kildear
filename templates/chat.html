@@ -79,10 +79,6 @@
                 </div>
                 <h2>Kildear Messenger</h2>
                 <p>Выберите чат для начала общения</p>
-                <div class="security-notice">
-                    <i class="fas fa-shield-alt"></i>
-                    Ваши сообщения защищены Kildear-end шифрованием
-                </div>
                 <button class="btn btn-outline" id="start-new-chat">
                     <i class="fas fa-search"></i> Найти пользователя
                 </button>
@@ -100,11 +96,8 @@
                 <span id="typing-text"></span>
             </div>
             <div class="message-input-wrapper">
-                <!-- Кнопки для вложений и стикеров -->
+                <!-- Кнопки для вложений -->
                 <div class="attachment-buttons">
-                    <button type="button" class="btn-icon" id="stickers-btn" title="Стикеры">
-                        <i class="fas fa-smile"></i>
-                    </button>
                     <button type="button" class="btn-icon" id="attach-photo" title="Отправить фото">
                         <i class="fas fa-image"></i>
                         <input type="file" id="photo-input" accept="image/*" style="display: none;">
@@ -125,9 +118,6 @@
                     </button>
                 </div>
             </div>
-
-            <!-- Контейнер для стикеров -->
-            <div id="stickers-container" class="stickers-container"></div>
 
             <!-- Превью вложений -->
             <div class="attachment-preview" id="attachment-preview" style="display: none;">

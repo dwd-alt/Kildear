@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kildear Messenger - Конфиденциальный чат</title>
+    <title>Kildear Messenger</title>
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -14,39 +14,12 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/5968/5968771.png">
 
-    <!-- CryptoJS для хэширования -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-
     <!-- Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-    <style>
-        /* Дополнительные стили для безопасности */
-        .security-banner {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .security-banner i {
-            font-size: 1rem;
-        }
-    </style>
 
     {% block head %}{% endblock %}
 </head>
 <body class="dark-theme">
-    <!-- Баннер безопасности -->
-    <div class="security-banner">
-        <i class="fas fa-shield-alt"></i>
-        <span>Ваши сообщения защищены Kildear-end шифрованием</span>
-    </div>
-
     <!-- Уведомления -->
     <div id="notifications-container"></div>
 
@@ -73,50 +46,7 @@
             // Можно загрузить тему из localStorage или с сервера
             const savedTheme = localStorage.getItem('theme') || 'dark';
             applyTheme(savedTheme);
-
-            // Проверяем поддержку WebRTC
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                console.warn('WebRTC не поддерживается в этом браузере');
-                showNotification('Звонки не поддерживаются в вашем браузере', 'warning');
-            }
-
-            // Проверяем поддержку шифрования
-            if (!window.crypto || !window.crypto.subtle) {
-                console.warn('Шифрование не поддерживается в этом браузере');
-                showNotification('Шифрование не поддерживается в вашем браузере', 'warning');
-            }
         });
-
-        // Вспомогательная функция для показа уведомлений
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-
-            let icon = 'info-circle';
-            if (type === 'success') icon = 'check-circle';
-            if (type === 'error') icon = 'exclamation-circle';
-            if (type === 'warning') icon = 'exclamation-triangle';
-
-            notification.innerHTML = `
-                <i class="fas fa-${icon}"></i>
-                <span>${message}</span>
-            `;
-
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 10);
-
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                }, 300);
-            }, 3000);
-        }
     </script>
 
     {% block scripts %}{% endblock %}

@@ -1,5 +1,43 @@
 {
-  "encrypted": true,
-  "timestamp": "2025-12-26T23:38:50.453320",
-  "data": "gAAAAABpTroaLAdE8bQjHrp_AM2cG7HwKMropcFpaZ2Y28wF2uUr4b7ZkiwRaRt9dmW4R16BMKXTKz8KNTzmEkHOamNjFIhYe7L2qdeRWlu08G3Bl4dYPBELsoGGvku7LvVfrbeOAEKifQoTULBGocOPpoJoJxLAm-9IIkTXqj6R09Fj1EuHTnOBAp-cWHASbl592dpzdGrqNgSKErpji5Y6u10yDotj1ULKEFLCY1W5biEHdWygPneXLczOS1x2mSgdS6m9sAaaxqxTPSCHXjBqxVwyTcpUhEXZQ_8xprhKvcmPtm7JG6WaFvkwi0dQJzOblhYIhqZye6KfH5PbcMcvKDmGfEcspBsRbwgROnIhYnWXL_ypWBho9wnQaKALLpvNAgsDaUnHiwZmyybEn5kmOvHp7JoMkYcv-gsJZOPHikwyGZitGvJIXIlC5GnIJPujA9dUwt06bNs4bdw99ZnitN7K0b_U7dEkPDRk71CGFAoGh_ccfCTQH63ng_zZ1ILXUlVCOkVqRf6lpjj-hqma0QlaDiowO8NVJFQCRk01ED7y5s8biNLX1zK69sRYCLCEz5ADcg5t36AA8Xhd2HIDq6kEBM8bBaPgkuFrr0MczJkLPq8XBIZdjylC7Df6HZJSgiriNqKREe0mxK2LZJ2MxedbzeMYNayoIYo3TiWsOsATC9x9oltAjqXUyTq-KHuYLZRTIgQvcNmTk7l0moWD9ypGKAo3Gn7_WMThzhkmqSTLSnlcO0e7sFDVtdAu4qnjF__6twA4fOxgmtNuoOvm1aVrJ9LA7mqurKwv8RIHxMNcbB9EC1s="
+  "adsffadsfasdf_roma232dfsfff": [
+    {
+      "id": "5498a205-5270-4b2a-a5fd-a581635d70fe",
+      "sender": "adsffadsfasdf",
+      "recipient": "roma232dfsfff",
+      "message": "dff",
+      "type": "text",
+      "timestamp": "2025-12-27T17:34:49.598637",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "540b3485-5b72-4250-9708-c1a3a5675131",
+      "sender": "roma232dfsfff",
+      "recipient": "adsffadsfasdf",
+      "message": "fdfff",
+      "type": "text",
+      "timestamp": "2025-12-27T17:34:52.414797",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "d075b5fc-5fe3-4c53-92ab-48fc76683d98",
+      "sender": "roma232dfsfff",
+      "recipient": "adsffadsfasdf",
+      "message": "",
+      "type": "image",
+      "timestamp": "2025-12-27T17:35:02.590615",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null,
+      "file_path": "media/e9f6ceb63da44a8b86b0ccd929519175.png",
+      "file_name": "Снимок экрана 2025-10-17 125430.png",
+      "file_size": 825986
+    }
+  ]
 }
