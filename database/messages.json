@@ -434,5 +434,51 @@
       "read": false,
       "edited": false
     }
+  ],
+  "dsffgsdsfdg_fdsffsgasfgs": [
+    {
+      "id": "3b0ac8ee-c63c-46b9-950a-886588d6aaee",
+      "sender": "dsffgsdsfdg",
+      "recipient": "fdsffsgasfgs",
+      "message": "sdd",
+      "type": "text",
+      "timestamp": "2025-12-29T17:02:16.784874",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "5f0175ad-4d69-44f5-8794-23e513dae05b",
+      "sender": "fdsffsgasfgs",
+      "recipient": "dsffgsdsfdg",
+      "message": "das",
+      "type": "text",
+      "timestamp": "2025-12-29T17:02:20.483035",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "cac5865b-06c0-4d80-877a-3b5f2ac8efdf",
+      "sender": "fdsffsgasfgs",
+      "recipient": "dsffgsdsfdg",
+      "message": "🐶",
+      "type": "sticker",
+      "timestamp": "2025-12-29T17:02:30.657301",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "71291cc7-88ea-444e-b34a-f3e7696ee795",
+      "sender": "fdsffsgasfgs",
+      "recipient": "dsffgsdsfdg",
+      "message": "",
+      "type": "file",
+      "timestamp": "2025-12-29T17:02:40.366481",
+      "read": false,
+      "edited": false,
+      "file_path": "files/e74d94c998ee44908bf367fe986a462a.mp4",
+      "file_name": "doc_2025-11-28_19-36-26.mp4",
+      "file_size": 557166,
+      "file_type": "file"
+    }
   ]
 }

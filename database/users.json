@@ -119,5 +119,29 @@
     "created_at": "2025-12-29T12:13:37.586634",
     "last_seen": "2025-12-29T12:13:37.586644",
     "blocked": false
+  },
+  "fdsffsgasfgs": {
+    "name": "dwfdf",
+    "description": "",
+    "username": "fdsffsgasfgs",
+    "password_hash": "pbkdf2:sha256:600000$l6ebAgfCw9SE3yIH$f3dd9d1d44586b2515010d7c093eb8b85bfb09fe522c8f935b4afb6a98e77fbe",
+    "avatar_color": "#45B7D1",
+    "avatar": null,
+    "theme": "dark",
+    "created_at": "2025-12-29T17:01:25.023285",
+    "last_seen": "2025-12-29T17:01:25.023294",
+    "blocked": false
+  },
+  "dsffgsdsfdg": {
+    "name": "dfdsqf",
+    "description": "",
+    "username": "dsffgsdsfdg",
+    "password_hash": "pbkdf2:sha256:600000$AY0uYKBldBTe49w3$f895fdcba76c1fef222fef806390242ce0f261e71da0601fb74c25e2e167e973",
+    "avatar_color": "#DDA0DD",
+    "avatar": null,
+    "theme": "dark",
+    "created_at": "2025-12-29T17:02:06.786956",
+    "last_seen": "2025-12-29T17:02:06.786965",
+    "blocked": false
   }
 }
