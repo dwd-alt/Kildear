@@ -35,5 +35,89 @@
     "created_at": "2025-12-27T17:34:43.178668",
     "last_seen": "2025-12-27T17:34:43.178679",
     "blocked": false
+  },
+  "roma232efdfd": {
+    "name": "http://192.168.0.104:5000/login",
+    "description": "",
+    "username": "roma232efdfd",
+    "password_hash": "pbkdf2:sha256:600000$YBt3p2iOfC6SVYRG$4ad220b7f36be7deeea0635c5cd17ae7929352ac9cddbd17a76f79307518bb40",
+    "avatar_color": "#45B7D1",
+    "avatar": null,
+    "theme": "dark",
+    "created_at": "2025-12-28T20:35:00.728749",
+    "last_seen": "2025-12-28T20:35:00.728756",
+    "blocked": false
+  },
+  "roma2332323": {
+    "name": "fdffsdf",
+    "description": "",
+    "username": "roma2332323",
+    "password_hash": "pbkdf2:sha256:600000$aeXh0wBh6K0vqzmu$48f7a583fa08294df02b55520ce1b14ae3d9be15a5b7b3fbc1e1629693538c71",
+    "avatar_color": "#4ECDC4",
+    "avatar": null,
+    "theme": "dark",
+    "created_at": "2025-12-28T20:36:33.235306",
+    "last_seen": "2025-12-28T20:36:33.235314",
+    "blocked": false
+  },
+  "roma23222fed": {
+    "name": "Roma",
+    "description": "",
+    "username": "roma23222fed",
+    "password_hash": "pbkdf2:sha256:600000$H8AxkjTe67eYOpxk$6df66dd6428b4b37c1c5db8e50d28b1b7ed35137b9984b59d0c35e46fd88a194",
+    "avatar_color": "#FFEAA7",
+    "avatar": null,
+    "theme": "dark",
+    "created_at": "2025-12-28T23:07:31.141862",
+    "last_seen": "2025-12-28T23:07:31.141871",
+    "blocked": false
+  },
+  "roma33636": {
+    "name": "Рома",
+    "description": "",
+    "username": "roma33636",
+    "password_hash": "pbkdf2:sha256:600000$REInarOn50OLIatM$9ff038734f6d02d57ef52e93a6192cfd2ddc827361beee27652bfbd3eb383e16",
+    "avatar_color": "#AB47BC",
+    "avatar": null,
+    "theme": "dark",
+    "created_at": "2025-12-28T23:19:13.513591",
+    "last_seen": "2025-12-28T23:19:13.513600",
+    "blocked": false
+  },
+  "olga": {
+    "name": "Оля",
+    "description": "",
+    "username": "olga",
+    "password_hash": "pbkdf2:sha256:600000$FvxFhYj2hYzUtion$72850087c34534e8ca3f930a3ec46d4da05976a33dd923be2ab5ac525c090e20",
+    "avatar_color": "#DDA0DD",
+    "avatar": null,
+    "theme": "dark",
+    "created_at": "2025-12-28T23:30:49.174727",
+    "last_seen": "2025-12-28T23:30:49.174736",
+    "blocked": false
+  },
+  "roma2322dfffd": {
+    "name": "Roma",
+    "description": "",
+    "username": "roma2322dfffd",
+    "password_hash": "pbkdf2:sha256:600000$LsMArpI1xeTKhUPB$72632e1ecb735e322bcd6f67daaf43edea2550616cc26adc50558a5d1390fa5a",
+    "avatar_color": "#FFEAA7",
+    "avatar": null,
+    "theme": "dark",
+    "created_at": "2025-12-29T12:12:13.506290",
+    "last_seen": "2025-12-29T12:12:13.506299",
+    "blocked": false
+  },
+  "dfdfsfgadgsgfgwerg": {
+    "name": "Рома",
+    "description": "",
+    "username": "dfdfsfgadgsgfgwerg",
+    "password_hash": "pbkdf2:sha256:600000$k7pYua9RfCvExXMX$53c038c0e31a74ed9c3b7b73f249a65cb27f64b5c6f93beac2d4f3c368d413b7",
+    "avatar_color": "#96CEB4",
+    "avatar": null,
+    "theme": "dark",
+    "created_at": "2025-12-29T12:13:37.586634",
+    "last_seen": "2025-12-29T12:13:37.586644",
+    "blocked": false
   }
 }

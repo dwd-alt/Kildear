@@ -9,10 +9,11 @@ import base64
 import threading
 import time
 import logging
+import mimetypes
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'kildear-messenger-secret-2024-secure'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
 # Настройка логирования
@@ -20,9 +21,16 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Создаем папки
-os.makedirs('static/uploads/media', exist_ok=True)
-os.makedirs('static/uploads/avatars', exist_ok=True)
-os.makedirs('database', exist_ok=True)
+folders = [
+    'static/uploads/media/image',
+    'static/uploads/media/video',
+    'static/uploads/media/audio',
+    'static/uploads/files',
+    'static/uploads/avatars',
+    'database'
+]
+for folder in folders:
+    os.makedirs(folder, exist_ok=True)
 
 socketio = SocketIO(app,
                     cors_allowed_origins="*",
@@ -163,28 +171,69 @@ def save_avatar(username, base64_data):
         return None
 
 
-def save_media_file(file_data, filename, file_type):
+# Функция определения типа файла
+def get_file_type(filename):
+    mime_type, _ = mimetypes.guess_type(filename)
+    if mime_type:
+        if mime_type.startswith('image/'):
+            return 'image'
+        elif mime_type.startswith('video/'):
+            return 'video'
+        elif mime_type.startswith('audio/'):
+            return 'audio'
+        elif mime_type == 'application/pdf':
+            return 'pdf'
+        elif mime_type in ['application/zip', 'application/x-rar-compressed', 'application/x-7z-compressed']:
+            return 'archive'
+        elif mime_type in ['application/msword',
+                           'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                           'application/vnd.oasis.opendocument.text']:
+            return 'document'
+        elif mime_type in ['application/vnd.ms-excel',
+                           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                           'application/vnd.oasis.opendocument.spreadsheet']:
+            return 'spreadsheet'
+        elif mime_type == 'text/plain':
+            return 'text'
+        elif mime_type in ['application/json', 'application/xml']:
+            return 'code'
+    return 'file'
+
+
+def save_media_file(file_data, filename, file_type=None):
     try:
         if ',' in file_data:
             file_data = file_data.split(',')[1]
 
         file_bytes = base64.b64decode(file_data)
 
+        if not file_type:
+            file_type = get_file_type(filename)
+
         file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else 'bin'
         unique_filename = f"{uuid.uuid4().hex}.{file_ext}"
-        filepath = os.path.join('static/uploads/media', unique_filename)
+
+        # Создаем подпапки по типу файла
+        if file_type in ['image', 'video', 'audio']:
+            filepath = os.path.join('static/uploads/media', file_type, unique_filename)
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            file_url = f"media/{file_type}/{unique_filename}"
+        else:
+            filepath = os.path.join('static/uploads/files', unique_filename)
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            file_url = f"files/{unique_filename}"
 
         with open(filepath, 'wb') as f:
             f.write(file_bytes)
 
-        return f"media/{unique_filename}"
+        return file_url, file_type
     except Exception as e:
-        print(f"Ошибка сохранения медиа: {e}")
-        return None
+        logger.error(f"Ошибка сохранения файла: {e}")
+        return None, None
 
 
 def generate_color_from_username(username):
-    colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8']
+    colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F78DA7', '#AB47BC']
     hash_value = sum(ord(char) for char in username)
     return colors[hash_value % len(colors)]
 
@@ -281,223 +330,6 @@ def get_call_history(username):
         if call_data['caller'] == username or call_data['callee'] == username:
             user_calls.append(call_data)
     return user_calls
-
-
-# Админские функции
-def is_admin(username):
-    admins = ['admin', 'administrator', 'root', 'moderator']
-    return username.lower() in admins
-
-
-def admin_get_user_messages(username):
-    messages = load_messages()
-    user_messages = []
-
-    for dialog_key, dialog_messages in messages.items():
-        for msg in dialog_messages:
-            if msg['sender'] == username or msg['recipient'] == username:
-                user_messages.append({
-                    'dialog': dialog_key,
-                    'message': msg
-                })
-
-    return user_messages
-
-
-def admin_get_all_users():
-    users = load_users()
-    online_users = load_online()
-
-    result = []
-    for username, user_data in users.items():
-        is_online = online_users.get(username, {}).get('online', False)
-        last_seen = online_users.get(username, {}).get('last_seen', '')
-
-        result.append({
-            'username': username,
-            'name': user_data['name'],
-            'email': user_data.get('email', ''),
-            'created_at': user_data.get('created_at', ''),
-            'last_seen': last_seen,
-            'online': is_online,
-            'blocked': user_data.get('blocked', False),
-            'message_count': admin_get_user_message_count(username)
-        })
-
-    return result
-
-
-def admin_get_user_message_count(username):
-    messages = load_messages()
-    count = 0
-
-    for dialog_key, dialog_messages in messages.items():
-        for msg in dialog_messages:
-            if msg['sender'] == username or msg['recipient'] == username:
-                count += 1
-
-    return count
-
-
-def admin_block_user(username):
-    users = load_users()
-    if username in users:
-        users[username]['blocked'] = True
-        save_users(users)
-        return True
-    return False
-
-
-def admin_unblock_user(username):
-    users = load_users()
-    if username in users:
-        users[username]['blocked'] = False
-        save_users(users)
-        return True
-    return False
-
-
-def admin_change_username(old_username, new_username):
-    users = load_users()
-
-    if old_username not in users:
-        return False, "Пользователь не найден"
-
-    if is_username_taken(new_username, exclude_user=old_username):
-        return False, "Этот юзернейм уже занят"
-
-    # Обновляем username во всех сообщениях
-    messages = load_messages()
-    for dialog_key in list(messages.keys()):
-        if old_username in dialog_key:
-            usernames = dialog_key.split('_')
-            if usernames[0] == old_username:
-                new_dialog_key = f"{new_username}_{usernames[1]}"
-            else:
-                new_dialog_key = f"{usernames[0]}_{new_username}"
-
-            for message in messages[dialog_key]:
-                if message['sender'] == old_username:
-                    message['sender'] = new_username
-                if message['recipient'] == old_username:
-                    message['recipient'] = new_username
-
-            messages[new_dialog_key] = messages.pop(dialog_key)
-
-    save_messages(messages)
-
-    # Обновляем пользователя
-    users[new_username] = users.pop(old_username)
-    users[new_username]['username'] = new_username
-    save_users(users)
-
-    # Обновляем онлайн статус
-    online_users = load_online()
-    if old_username in online_users:
-        online_users[new_username] = online_users.pop(old_username)
-
-    # Обновляем блокировки
-    blocks = load_blocks()
-    for blocker, blocked_list in list(blocks.items()):
-        if old_username in blocked_list:
-            blocked_list[blocked_list.index(old_username)] = new_username
-
-    return True, "Имя пользователя изменено"
-
-
-# Новые маршруты для работы поиска и сохранения чата
-@app.route('/api/get_all_users')
-def api_get_all_users():
-    if 'username' not in session:
-        return jsonify({'error': 'Not authorized'}), 401
-
-    users = load_users()
-    online_users = load_online()
-
-    result = []
-    current_username = session['username']
-    blocked_users = get_blocked_users(current_username)
-
-    for username, user_data in users.items():
-        if username == current_username:
-            continue
-
-        if username in blocked_users:
-            continue
-
-        is_online = online_users.get(username, {}).get('online', False)
-        last_seen = online_users.get(username, {}).get('last_seen', '')
-
-        result.append({
-            'username': username,
-            'name': user_data['name'],
-            'description': user_data.get('description', ''),
-            'avatar': user_data.get('avatar'),
-            'avatar_color': user_data.get('avatar_color', '#4ECDC4'),
-            'is_online': is_online,
-            'last_seen': last_seen,
-            'created_at': user_data.get('created_at', '')
-        })
-
-    return jsonify(result)
-
-
-@app.route('/api/save_current_chat', methods=['POST'])
-def api_save_current_chat():
-    if 'username' not in session:
-        return jsonify({'error': 'Not authorized'}), 401
-
-    data = request.json
-    chat_with = data.get('chat_with')
-
-    if not chat_with:
-        return jsonify({'error': 'No user specified'}), 400
-
-    saved_chats = load_saved_chats()
-    username = session['username']
-
-    if username not in saved_chats:
-        saved_chats[username] = {}
-
-    saved_chats[username]['current_chat'] = chat_with
-    saved_chats[username]['last_opened'] = datetime.now().isoformat()
-
-    save_saved_chats(saved_chats)
-
-    return jsonify({'success': True})
-
-
-@app.route('/api/save_chat', methods=['POST'])
-def save_chat():
-    if 'username' not in session:
-        return jsonify({'error': 'Not authorized'}), 401
-
-    data = request.json
-    chat_with = data.get('chat_with')
-
-    if not chat_with:
-        return jsonify({'error': 'No user specified'}), 400
-
-    saved_chats = load_saved_chats()
-    username = session['username']
-
-    if username not in saved_chats:
-        saved_chats[username] = {}
-
-    saved_chats[username]['current_chat'] = chat_with
-    saved_chats[username]['last_opened'] = datetime.now().isoformat()
-
-    save_saved_chats(saved_chats)
-    return jsonify({'success': True})
-
-# Маршруты для звонков
-@app.route('/api/get_call_history')
-def api_get_call_history():
-    if 'username' not in session:
-        return jsonify({'error': 'Not authorized'}), 401
-
-    calls = get_call_history(session['username'])
-    return jsonify(calls)
 
 
 # Основные маршруты
@@ -640,7 +472,7 @@ def chat():
         session.clear()
         return render_template('blocked.html')
 
-    return render_template('chat.html', current_user=current_user, is_admin=is_admin(session['username']))
+    return render_template('chat.html', current_user=current_user)
 
 
 @app.route('/profile')
@@ -660,8 +492,7 @@ def profile(username=None):
     # Если username не указан, показываем профиль текущего пользователя
     if not username:
         return render_template('profile.html',
-                               user=current_user,
-                               is_admin=is_admin(current_username))
+                               user=current_user)
 
     # Показываем профиль другого пользователя
     other_user = users.get(username)
@@ -680,7 +511,6 @@ def profile(username=None):
                            is_other_profile=True,
                            is_blocked=is_blocked_by_me,
                            is_blocking_me=is_blocking_me,
-                           is_admin=is_admin(current_username),
                            current_user=current_user)
 
 
@@ -779,13 +609,46 @@ def change_username():
     if is_username_taken(new_username, exclude_user=session['username']):
         return jsonify({'success': False, 'message': 'Этот юзернейм уже занят'})
 
-    success, message = admin_change_username(session['username'], new_username)
-    if success:
-        # Обновляем сессию
-        session['username'] = new_username
-        return jsonify({'success': True, 'message': message, 'new_username': new_username})
-    else:
-        return jsonify({'success': False, 'message': message})
+    # Обновляем username во всех сообщениях
+    messages = load_messages()
+    for dialog_key in list(messages.keys()):
+        if session['username'] in dialog_key:
+            usernames = dialog_key.split('_')
+            if usernames[0] == session['username']:
+                new_dialog_key = f"{new_username}_{usernames[1]}"
+            else:
+                new_dialog_key = f"{usernames[0]}_{new_username}"
+
+            for message in messages[dialog_key]:
+                if message['sender'] == session['username']:
+                    message['sender'] = new_username
+                if message['recipient'] == session['username']:
+                    message['recipient'] = new_username
+
+            messages[new_dialog_key] = messages.pop(dialog_key)
+
+    save_messages(messages)
+
+    # Обновляем пользователя
+    users[new_username] = users.pop(session['username'])
+    users[new_username]['username'] = new_username
+    save_users(users)
+
+    # Обновляем онлайн статус
+    online_users = load_online()
+    if session['username'] in online_users:
+        online_users[new_username] = online_users.pop(session['username'])
+
+    # Обновляем блокировки
+    blocks = load_blocks()
+    for blocker, blocked_list in list(blocks.items()):
+        if session['username'] in blocked_list:
+            blocked_list[blocked_list.index(session['username'])] = new_username
+
+    # Обновляем сессию
+    session['username'] = new_username
+
+    return jsonify({'success': True, 'message': 'Имя пользователя изменено', 'new_username': new_username})
 
 
 @app.route('/api/user/<username>')
@@ -1054,7 +917,7 @@ def api_get_pinned_messages():
                 pinned_messages.append({
                     'message': msg,
                     'dialog_with': other_user
-                })
+                });
 
     return jsonify(pinned_messages)
 
@@ -1097,6 +960,31 @@ def api_edit_message():
 @app.route('/static/uploads/<path:filename>')
 def serve_uploaded_file(filename):
     return send_from_directory('static/uploads', filename)
+
+
+@app.route('/api/save_current_chat', methods=['POST'])
+def api_save_current_chat():
+    if 'username' not in session:
+        return jsonify({'error': 'Not authorized'}), 401
+
+    data = request.json
+    chat_with = data.get('chat_with')
+
+    if not chat_with:
+        return jsonify({'error': 'No user specified'}), 400
+
+    saved_chats = load_saved_chats()
+    username = session['username']
+
+    if username not in saved_chats:
+        saved_chats[username] = {}
+
+    saved_chats[username]['current_chat'] = chat_with
+    saved_chats[username]['last_opened'] = datetime.now().isoformat()
+
+    save_saved_chats(saved_chats)
+
+    return jsonify({'success': True})
 
 
 # WebSocket события для чата
@@ -1172,8 +1060,7 @@ def handle_send_message(data):
     file_data = data.get('file_data')
     file_name = data.get('file_name')
     file_size = data.get('file_size')
-    reply_to = data.get('reply_to')
-    forward_from = data.get('forward_from')
+    file_type = data.get('file_type', 'file')
 
     if not recipient or (not message and not file_data and message_type in ['text', 'sticker']):
         return {'error': 'No message content'}
@@ -1181,6 +1068,10 @@ def handle_send_message(data):
     # Проверяем блокировки
     if is_user_blocked(sender, recipient) or is_user_blocked(recipient, sender):
         return {'error': 'User blocked'}
+
+    # Проверяем размер файла
+    if file_data and len(file_data) > 50 * 1024 * 1024:  # 50MB max
+        return {'error': 'File too large'}
 
     dialog_key = '_'.join(sorted([sender, recipient]))
 
@@ -1199,28 +1090,24 @@ def handle_send_message(data):
         'type': message_type,
         'timestamp': timestamp,
         'read': False,
-        'edited': False,
-        'reply_to': reply_to,
-        'forward_from': forward_from
+        'edited': False
     }
 
-    # Обработка медиафайлов
-    if file_data and file_name and message_type in ['image', 'video']:
+    # Обработка файлов
+    if file_data and file_name:
         try:
-            # Проверяем размер данных
-            if len(file_data) > 50 * 1024 * 1024:  # 50MB max
-                return {'error': 'File too large'}
-
-            file_path = save_media_file(file_data, file_name, message_type)
+            file_path, saved_file_type = save_media_file(file_data, file_name, file_type)
             if file_path:
                 message_obj['file_path'] = file_path
                 message_obj['file_name'] = file_name
                 message_obj['file_size'] = file_size
+                message_obj['file_type'] = saved_file_type
+                message_obj['type'] = saved_file_type if saved_file_type in ['image', 'video', 'audio'] else 'file'
             else:
                 return {'error': 'Failed to save file'}
         except Exception as e:
-            print(f"Error saving media file: {e}")
-            return {'error': 'Media upload failed'}
+            logger.error(f"Error saving file: {e}")
+            return {'error': 'File upload failed'}
 
     messages[dialog_key].append(message_obj)
 
@@ -1234,13 +1121,13 @@ def handle_send_message(data):
     try:
         emit('new_message', message_obj, room=recipient)
     except Exception as e:
-        print(f"Error emitting to recipient: {e}")
+        logger.error(f"Error emitting to recipient: {e}")
 
     # Подтверждение отправителю
     try:
         emit('message_sent', message_obj, room=sender)
     except Exception as e:
-        print(f"Error emitting to sender: {e}")
+        logger.error(f"Error emitting to sender: {e}")
 
     logger.info(f"💬 Сообщение от {sender} → {recipient}")
     return {'success': True}
@@ -1261,12 +1148,12 @@ def handle_delete_message(data):
         for msg in dialog_messages:
             if msg['id'] == message_id:
                 # Проверяем права
-                if msg['sender'] == username or delete_for_everyone or is_admin(username):
+                if msg['sender'] == username or delete_for_everyone:
                     # Помечаем как удаленное
                     msg['deleted'] = True
                     msg['deleted_by'] = username
                     msg['deleted_at'] = datetime.now().isoformat()
-                    msg['permanent'] = delete_for_everyone or is_admin(username)
+                    msg['permanent'] = delete_for_everyone
 
                     save_messages(messages)
 
@@ -1314,6 +1201,12 @@ def handle_start_call(data):
         emit('call_error', {'message': 'User is offline'}, room=caller)
         return
 
+    # Проверяем, не занят ли пользователь другим звонком
+    for call in active_calls.values():
+        if callee in [call['caller'], call['callee']] and call['status'] == 'active':
+            emit('call_error', {'message': 'User is busy'}, room=caller)
+            return
+
     # Сохраняем информацию о звонке
     active_calls[call_id] = {
         'caller': caller,
@@ -1335,7 +1228,8 @@ def handle_start_call(data):
     def call_timeout():
         if call_id in active_calls and active_calls[call_id]['status'] == 'ringing':
             emit('call_timeout', {'call_id': call_id}, room=caller)
-            del active_calls[call_id]
+            if call_id in active_calls:
+                del active_calls[call_id]
 
     socketio.start_background_task(
         lambda: (time.sleep(30), call_timeout())
@@ -1371,11 +1265,7 @@ def handle_accept_call(data):
         'timestamp': datetime.now().isoformat()
     }, room=call_info['caller'])
 
-    # Отправляем сигнал звонящему о начале звонка
-    emit('call_started', {
-        'call_id': call_id,
-        'timestamp': datetime.now().isoformat()
-    }, room=call_info['caller'])
+    logger.info(f"📞 Звонок принят: {caller} → {callee}")
 
 
 @socketio.on('reject_call')
@@ -1520,87 +1410,6 @@ def handle_call_ice_candidate(data):
     }, room=recipient)
 
 
-# Админ-консоль
-def admin_console():
-    while True:
-        try:
-            command = input("\n👑 Админ> ").strip().lower()
-
-            if command == 'exit' or command == 'quit':
-                break
-            elif command == 'users':
-                users = admin_get_all_users()
-                print(f"\nВсего пользователей: {len(users)}")
-                for user in users:
-                    status = '✅ онлайн' if user['online'] else '⏸️ офлайн'
-                    blocked = '🚫 заблокирован' if user['blocked'] else '✅ активен'
-                    print(f"  @{user['username']} - {user['name']} - {status} - {blocked}")
-
-            elif command.startswith('messages '):
-                username = command.split(' ', 1)[1]
-                messages = admin_get_user_messages(username)
-                print(f"\nСообщения пользователя @{username}: {len(messages)}")
-                for msg in messages[:10]:  # Показываем первые 10
-                    print(
-                        f"  [{msg['message']['timestamp']}] {msg['message']['sender']} → {msg['message']['recipient']}: {msg['message']['message'][:50]}")
-
-            elif command.startswith('block '):
-                username = command.split(' ', 1)[1]
-                if admin_block_user(username):
-                    print(f"✅ Пользователь @{username} заблокирован")
-                else:
-                    print(f"❌ Ошибка блокировки пользователя @{username}")
-
-            elif command.startswith('unblock '):
-                username = command.split(' ', 1)[1]
-                if admin_unblock_user(username):
-                    print(f"✅ Пользователь @{username} разблокирован")
-                else:
-                    print(f"❌ Ошибка разблокировки пользователя @{username}")
-
-            elif command.startswith('rename '):
-                parts = command.split(' ')
-                if len(parts) == 3:
-                    old_username, new_username = parts[1], parts[2]
-                    success, message = admin_change_username(old_username, new_username)
-                    if success:
-                        print(f"✅ Имя пользователя изменено: @{old_username} → @{new_username}")
-                    else:
-                        print(f"❌ {message}")
-                else:
-                    print("❌ Использование: rename <старый_юзернейм> <новый_юзернейм>")
-
-            elif command == 'calls':
-                calls = load_calls()
-                print(f"\nВсего звонков: {len(calls)}")
-                for call_id, call_data in list(calls.items())[:10]:
-                    print(
-                        f"  [{call_data.get('started_at', '')}] {call_data['caller']} → {call_data['callee']} ({call_data['type']})")
-
-            elif command == 'help' or command == '?':
-                print("\nДоступные команды:")
-                print("  users - показать всех пользователей")
-                print("  messages <user> - показать сообщения пользователя")
-                print("  block <user> - заблокировать пользователя")
-                print("  unblock <user> - разблокировать пользователя")
-                print("  rename <old> <new> - изменить имя пользователя")
-                print("  calls - показать историю звонков")
-                print("  exit - выход из админ-консоли")
-            else:
-                print("❌ Неизвестная команда. Введите 'help' для списка команд.")
-
-        except KeyboardInterrupt:
-            break
-        except Exception as e:
-            print(f"❌ Ошибка: {e}")
-
-
-# Запуск админ-консоли в отдельном потоке
-def start_admin_console():
-    time.sleep(2)
-    admin_console()
-
-
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
 
@@ -1610,32 +1419,20 @@ if __name__ == '__main__':
     print(f"📡 Порт: {port}")
     print(f"   • Локально: http://localhost:{port}")
     print("=" * 60)
-    print("🔒 Функции безопасности:")
-    print("   • Хэширование паролей")
-    print("   • Блокировка пользователей")
-    print("   • Админ-панель")
+    print("🎯 Новые функции:")
+    print("   • Стикеры с категориями")
+    print("   • Уведомления о новых сообщениях сверху")
+    print("   • Отслеживание непрочитанных сообщений")
+    print("   • Звонки с WebRTC")
+    print("   • Поддержка всех типов файлов")
     print("=" * 60)
-    print("📋 Новые функции:")
-    print("   • Закрепление сообщений")
-    print("   • Ответ на сообщения")
-    print("   • Пересылка сообщений")
-    print("   • Изменение сообщений")
-    print("   • Стикеры")
-    print("   • Аудио/Видео звонки")
-    print("=" * 60)
-    print("⚙️  Админ-команды:")
-    print("   • users - показать всех пользователей")
-    print("   • messages <user> - показать сообщения пользователя")
-    print("   • block <user> - заблокировать пользователя")
-    print("   • unblock <user> - разблокировать пользователя")
-    print("   • rename <old> <new> - изменить имя пользователя")
-    print("   • calls - показать историю звонков")
+    print("⚙️  Файлы подготовлены:")
+    print("   • style.css - стили со стикерами и уведомлениями")
+    print("   • script.js - логика стикеров и уведомлений")
+    print("   • chat.html - панель стикеров")
+    print("   • app.py - поддержка типа 'sticker'")
     print("=" * 60)
     print("⚠️  Нажмите Ctrl+C для остановки")
     print("=" * 60)
-
-    # Запускаем админ-консоль в отдельном потоке
-    admin_thread = threading.Thread(target=start_admin_console, daemon=True)
-    admin_thread.start()
 
     socketio.run(app, debug=False, host='0.0.0.0', port=port, allow_unsafe_werkzeug=True)

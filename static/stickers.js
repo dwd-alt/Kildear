@@ -1,171 +1,243 @@
 // static/stickers.js
-const stickers = {
-    'emotions': [
-        { id: 'smile', emoji: '😊', text: 'Улыбка' },
-        { id: 'laugh', emoji: '😂', text: 'Смех' },
-        { id: 'love', emoji: '😍', text: 'Любовь' },
-        { id: 'wink', emoji: '😉', text: 'Подмигивание' },
-        { id: 'cool', emoji: '😎', text: 'Крутой' },
-        { id: 'sad', emoji: '😢', text: 'Грусть' },
-        { id: 'angry', emoji: '😠', text: 'Злость' },
-        { id: 'surprise', emoji: '😲', text: 'Удивление' },
-        { id: 'thinking', emoji: '🤔', text: 'Размышление' },
-        { id: 'facepalm', emoji: '🤦', text: 'Рукопожатие' }
-    ],
-    'animals': [
-        { id: 'cat', emoji: '🐱', text: 'Кот' },
-        { id: 'dog', emoji: '🐶', text: 'Собака' },
-        { id: 'fox', emoji: '🦊', text: 'Лиса' },
-        { id: 'lion', emoji: '🦁', text: 'Лев' },
-        { id: 'tiger', emoji: '🐯', text: 'Тигр' },
-        { id: 'bear', emoji: '🐻', text: 'Медведь' },
-        { id: 'panda', emoji: '🐼', text: 'Панда' },
-        { id: 'rabbit', emoji: '🐰', text: 'Кролик' },
-        { id: 'owl', emoji: '🦉', text: 'Сова' },
-        { id: 'unicorn', emoji: '🦄', text: 'Единорог' }
-    ],
-    'actions': [
-        { id: 'thumbs_up', emoji: '👍', text: 'Класс' },
-        { id: 'thumbs_down', emoji: '👎', text: 'Не нравится' },
-        { id: 'ok', emoji: '👌', text: 'ОК' },
-        { id: 'clap', emoji: '👏', text: 'Аплодисменты' },
-        { id: 'pray', emoji: '🙏', text: 'Молитва' },
-        { id: 'fist', emoji: '✊', text: 'Кулак' },
-        { id: 'wave', emoji: '👋', text: 'Привет' },
-        { id: 'heart', emoji: '❤️', text: 'Сердце' },
-        { id: 'fire', emoji: '🔥', text: 'Огонь' },
-        { id: 'star', emoji: '⭐', text: 'Звезда' }
-    ],
-    'objects': [
-        { id: 'coffee', emoji: '☕', text: 'Кофе' },
-        { id: 'pizza', emoji: '🍕', text: 'Пицца' },
-        { id: 'beer', emoji: '🍺', text: 'Пиво' },
-        { id: 'cake', emoji: '🎂', text: 'Торт' },
-        { id: 'gift', emoji: '🎁', text: 'Подарок' },
-        { id: 'balloon', emoji: '🎈', text: 'Шарик' },
-        { id: 'music', emoji: '🎵', text: 'Музыка' },
-        { id: 'camera', emoji: '📷', text: 'Камера' },
-        { id: 'phone', emoji: '📱', text: 'Телефон' },
-        { id: 'money', emoji: '💰', text: 'Деньги' }
-    ]
-};
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация стикеров
+    initStickers();
+});
 
 function initStickers() {
-    const stickerBtn = document.createElement('button');
-    stickerBtn.className = 'btn-icon';
-    stickerBtn.id = 'stickers-btn';
-    stickerBtn.title = 'Стикеры';
-    stickerBtn.innerHTML = '<i class="fas fa-sticky-note"></i>';
-
-    const attachmentButtons = document.querySelector('.attachment-buttons');
-    if (attachmentButtons) {
-        attachmentButtons.appendChild(stickerBtn);
+    // Находим кнопку для стикеров
+    const stickersBtn = document.getElementById('stickers-toggle');
+    if (!stickersBtn) {
+        // Если кнопки нет, создаем её
+        const attachmentButtons = document.querySelector('.attachment-buttons');
+        if (attachmentButtons) {
+            const stickerBtn = document.createElement('button');
+            stickerBtn.type = 'button';
+            stickerBtn.className = 'btn-icon';
+            stickerBtn.id = 'stickers-toggle';
+            stickerBtn.title = 'Стикеры';
+            stickerBtn.innerHTML = '<i class="fas fa-smile"></i>';
+            attachmentButtons.appendChild(stickerBtn);
+        }
     }
 
     // Создаем контейнер для стикеров
-    const stickersContainer = document.createElement('div');
-    stickersContainer.id = 'stickers-container';
-    stickersContainer.className = 'stickers-container';
-    stickersContainer.style.display = 'none';
+    createStickersPanel();
+}
 
-    // Заголовок
-    const header = document.createElement('div');
-    header.className = 'stickers-header';
-    header.innerHTML = `
-        <h4><i class="fas fa-sticky-note"></i> Стикеры</h4>
-        <button class="btn-icon close-stickers">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-    stickersContainer.appendChild(header);
-
-    // Категории
-    const categories = document.createElement('div');
-    categories.className = 'sticker-categories';
-
-    Object.keys(stickers).forEach(category => {
-        const btn = document.createElement('button');
-        btn.className = 'sticker-category-btn';
-        btn.dataset.category = category;
-        btn.textContent = getCategoryName(category);
-        categories.appendChild(btn);
-    });
-    stickersContainer.appendChild(categories);
-
-    // Сетка стикеров
-    const grid = document.createElement('div');
-    grid.className = 'stickers-grid';
-    stickersContainer.appendChild(grid);
-
-    // Добавляем в DOM
-    const messageInputContainer = document.querySelector('.message-input-container');
-    if (messageInputContainer) {
-        messageInputContainer.appendChild(stickersContainer);
+function createStickersPanel() {
+    // Удаляем существующую панель
+    const existingPanel = document.getElementById('stickers-panel');
+    if (existingPanel) {
+        existingPanel.remove();
     }
 
-    // Обработчики событий
-    stickerBtn.addEventListener('click', toggleStickers);
+    const stickersContainer = document.createElement('div');
+    stickersContainer.id = 'stickers-panel';
+    stickersContainer.className = 'stickers-panel';
 
-    if (stickersContainer.querySelector('.close-stickers')) {
-        stickersContainer.querySelector('.close-stickers').addEventListener('click', () => {
-            stickersContainer.style.display = 'none';
+    stickersContainer.innerHTML = `
+        <div class="stickers-header">
+            <h4><i class="fas fa-sticky-note"></i> Стикеры</h4>
+            <button class="btn-icon close-stickers">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sticker-categories" id="sticker-categories">
+            <button class="sticker-category-btn active" data-category="emotions">
+                <span>Эмоции</span>
+            </button>
+            <button class="sticker-category-btn" data-category="animals">
+                <span>Животные</span>
+            </button>
+            <button class="sticker-category-btn" data-category="actions">
+                <span>Действия</span>
+            </button>
+            <button class="sticker-category-btn" data-category="food">
+                <span>Еда</span>
+            </button>
+            <button class="sticker-category-btn" data-category="objects">
+                <span>Объекты</span>
+            </button>
+            <button class="sticker-category-btn" data-category="flags">
+                <span>Флаги</span>
+            </button>
+        </div>
+        <div class="stickers-grid" id="stickers-grid"></div>
+    `;
+
+    document.body.appendChild(stickersContainer);
+
+    // Загружаем стикеры первой категории
+    loadStickers('emotions');
+
+    // Назначаем обработчики событий
+    setupStickerEvents();
+}
+
+function setupStickerEvents() {
+    const stickersBtn = document.getElementById('stickers-toggle');
+    const stickersPanel = document.getElementById('stickers-panel');
+    const closeBtn = stickersPanel?.querySelector('.close-stickers');
+    const categoryBtns = stickersPanel?.querySelectorAll('.sticker-category-btn');
+
+    if (stickersBtn) {
+        stickersBtn.addEventListener('click', toggleStickers);
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeStickers);
+    }
+
+    if (categoryBtns) {
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const category = this.dataset.category;
+                loadStickers(category);
+
+                // Обновляем активную категорию
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
         });
     }
 
-    categories.addEventListener('click', (e) => {
-        if (e.target.classList.contains('sticker-category-btn')) {
-            const category = e.target.dataset.category;
-            showStickers(category);
+    // Закрытие при клике вне панели
+    document.addEventListener('click', function(event) {
+        const stickersBtn = document.getElementById('stickers-toggle');
+        const stickersPanel = document.getElementById('stickers-panel');
 
-            // Активная кнопка
-            categories.querySelectorAll('.sticker-category-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            e.target.classList.add('active');
+        if (!stickersPanel || !stickersBtn) return;
+
+        if (!stickersPanel.contains(event.target) && !stickersBtn.contains(event.target)) {
+            closeStickers();
         }
     });
-
-    // Показываем первую категорию по умолчанию
-    showStickers('emotions');
-    const firstCategoryBtn = categories.querySelector('[data-category="emotions"]');
-    if (firstCategoryBtn) {
-        firstCategoryBtn.classList.add('active');
-    }
 }
 
 function toggleStickers() {
-    const container = document.getElementById('stickers-container');
-    if (!container) return;
+    const panel = document.getElementById('stickers-panel');
+    if (!panel) return;
 
-    if (container.style.display === 'none' || !container.style.display) {
-        container.style.display = 'block';
+    if (panel.classList.contains('show')) {
+        closeStickers();
     } else {
-        container.style.display = 'none';
+        openStickers();
     }
 }
 
-function showStickers(category) {
-    const grid = document.querySelector('.stickers-grid');
+function openStickers() {
+    const panel = document.getElementById('stickers-panel');
+    if (!panel) return;
+
+    panel.classList.add('show');
+}
+
+function closeStickers() {
+    const panel = document.getElementById('stickers-panel');
+    if (!panel) return;
+
+    panel.classList.remove('show');
+}
+
+function loadStickers(category) {
+    const grid = document.getElementById('stickers-grid');
     if (!grid) return;
 
     grid.innerHTML = '';
 
-    if (stickers[category]) {
-        stickers[category].forEach(sticker => {
+    const stickerSets = {
+        'emotions': [
+            { emoji: '😊', text: 'Улыбка' },
+            { emoji: '😂', text: 'Смех' },
+            { emoji: '😍', text: 'Любовь' },
+            { emoji: '😉', text: 'Подмигивание' },
+            { emoji: '😎', text: 'Крутой' },
+            { emoji: '😢', text: 'Грусть' },
+            { emoji: '😠', text: 'Злость' },
+            { emoji: '😲', text: 'Удивление' },
+            { emoji: '🤔', text: 'Размышление' },
+            { emoji: '🤦', text: 'Рукопожатие' },
+            { emoji: '😭', text: 'Слёзы' },
+            { emoji: '😘', text: 'Поцелуй' }
+        ],
+        'animals': [
+            { emoji: '🐱', text: 'Кот' },
+            { emoji: '🐶', text: 'Собака' },
+            { emoji: '🦊', text: 'Лиса' },
+            { emoji: '🦁', text: 'Лев' },
+            { emoji: '🐯', text: 'Тигр' },
+            { emoji: '🐻', text: 'Медведь' },
+            { emoji: '🐼', text: 'Панда' },
+            { emoji: '🐰', text: 'Кролик' },
+            { emoji: '🦉', text: 'Сова' },
+            { emoji: '🦄', text: 'Единорог' },
+            { emoji: '🐵', text: 'Обезьяна' },
+            { emoji: '🐲', text: 'Дракон' }
+        ],
+        'actions': [
+            { emoji: '👍', text: 'Класс' },
+            { emoji: '👎', text: 'Не нравится' },
+            { emoji: '👌', text: 'ОК' },
+            { emoji: '👏', text: 'Аплодисменты' },
+            { emoji: '🙏', text: 'Молитва' },
+            { emoji: '✊', text: 'Кулак' },
+            { emoji: '👋', text: 'Привет' },
+            { emoji: '❤️', text: 'Сердце' },
+            { emoji: '🔥', text: 'Огонь' },
+            { emoji: '⭐', text: 'Звезда' },
+            { emoji: '🚀', text: 'Ракета' },
+            { emoji: '🏆', text: 'Трофей' }
+        ],
+        'food': [
+            { emoji: '☕', text: 'Кофе' },
+            { emoji: '🍕', text: 'Пицца' },
+            { emoji: '🍺', text: 'Пиво' },
+            { emoji: '🎂', text: 'Торт' },
+            { emoji: '🍔', text: 'Бургер' },
+            { emoji: '🍣', text: 'Суши' },
+            { emoji: '🍦', text: 'Мороженое' },
+            { emoji: '🍸', text: 'Коктейль' },
+            { emoji: '🍿', text: 'Попкорн' },
+            { emoji: '🍫', text: 'Шоколад' }
+        ],
+        'objects': [
+            { emoji: '🎁', text: 'Подарок' },
+            { emoji: '🎈', text: 'Шарик' },
+            { emoji: '🎵', text: 'Музыка' },
+            { emoji: '📷', text: 'Камера' },
+            { emoji: '📱', text: 'Телефон' },
+            { emoji: '💰', text: 'Деньги' },
+            { emoji: '⏰', text: 'Часы' },
+            { emoji: '📚', text: 'Книги' },
+            { emoji: '💻', text: 'Компьютер' },
+            { emoji: '🔑', text: 'Ключ' }
+        ],
+        'flags': [
+            { emoji: '🇷🇺', text: 'Россия' },
+            { emoji: '🇺🇸', text: 'США' },
+            { emoji: '🇬🇧', text: 'Великобритания' },
+            { emoji: '🇩🇪', text: 'Германия' },
+            { emoji: '🇫🇷', text: 'Франция' },
+            { emoji: '🇪🇸', text: 'Испания' },
+            { emoji: '🇮🇹', text: 'Италия' },
+            { emoji: '🇯🇵', text: 'Япония' },
+            { emoji: '🇨🇳', text: 'Китай' },
+            { emoji: '🇺🇦', text: 'Украина' }
+        ]
+    };
+
+    if (stickerSets[category]) {
+        stickerSets[category].forEach(sticker => {
             const stickerEl = document.createElement('div');
             stickerEl.className = 'sticker-item';
             stickerEl.title = sticker.text;
             stickerEl.innerHTML = `
                 <div class="sticker-emoji">${sticker.emoji}</div>
-                <div class="sticker-text">${sticker.text}</div>
             `;
 
             stickerEl.addEventListener('click', () => {
                 sendSticker(sticker.emoji);
-                const container = document.getElementById('stickers-container');
-                if (container) {
-                    container.style.display = 'none';
-                }
             });
 
             grid.appendChild(stickerEl);
@@ -173,18 +245,11 @@ function showStickers(category) {
     }
 }
 
-function getCategoryName(category) {
-    const names = {
-        'emotions': 'Эмоции',
-        'animals': 'Животные',
-        'actions': 'Действия',
-        'objects': 'Объекты'
-    };
-    return names[category] || category;
-}
-
 function sendSticker(emoji) {
-    const currentRecipient = document.getElementById('current-recipient')?.value;
+    // Получаем текущего получателя из глобальной переменной или из DOM
+    const currentRecipient = window.currentRecipient ||
+                           document.getElementById('current-recipient')?.value;
+
     if (!currentRecipient) {
         showNotification('Выберите чат для отправки стикера', 'info');
         return;
@@ -197,7 +262,9 @@ function sendSticker(emoji) {
         type: 'sticker'
     };
 
-    const sendBtn = document.querySelector('.btn-send');
+    // Находим кнопку отправки
+    const sendBtn = document.querySelector('#send-message-btn') ||
+                   document.querySelector('.btn-send');
 
     if (sendBtn) {
         const originalIcon = sendBtn.innerHTML;
@@ -210,6 +277,9 @@ function sendSticker(emoji) {
 
             if (response && response.error) {
                 showNotification('Ошибка отправки: ' + response.error, 'error');
+            } else {
+                // Закрываем панель стикеров после отправки
+                closeStickers();
             }
         });
     }
@@ -218,7 +288,7 @@ function sendSticker(emoji) {
 // Вспомогательная функция для показа уведомлений
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
+    notification.className = `notification notification-${type}`;
 
     let icon = 'info-circle';
     if (type === 'success') icon = 'check-circle';
@@ -244,6 +314,3 @@ function showNotification(message, type = 'info') {
         }, 300);
     }, 3000);
 }
-
-// Инициализация при загрузке
-document.addEventListener('DOMContentLoaded', initStickers);

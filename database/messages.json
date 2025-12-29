@@ -39,5 +39,400 @@
       "file_name": "Снимок экрана 2025-10-17 125430.png",
       "file_size": 825986
     }
+  ],
+  "roma232dfsfff_roma232efdfd": [
+    {
+      "id": "1a727383-09cc-4e61-b0f9-a51d8fbacbc4",
+      "sender": "roma232efdfd",
+      "recipient": "roma232dfsfff",
+      "message": "dfdf",
+      "type": "text",
+      "timestamp": "2025-12-28T20:35:04.563334",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "415fe0b9-07f4-4cff-a570-7ed9eb4db457",
+      "sender": "roma232efdfd",
+      "recipient": "roma232dfsfff",
+      "message": "",
+      "type": "image",
+      "timestamp": "2025-12-28T20:35:11.757991",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null,
+      "file_path": "media/d9765ff0605e40a9a19c9765520b3d2c.png",
+      "file_name": "Снимок экрана 2025-10-17 125430.png",
+      "file_size": 825986
+    }
+  ],
+  "roma232efdfd_roma2332323": [
+    {
+      "id": "30ca0a23-bbc6-4e80-8095-75076758e90e",
+      "sender": "roma2332323",
+      "recipient": "roma232efdfd",
+      "message": "dff",
+      "type": "text",
+      "timestamp": "2025-12-28T20:38:42.499611",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "e183d4be-ad85-4244-a020-624fc879df58",
+      "sender": "roma232efdfd",
+      "recipient": "roma2332323",
+      "message": "j",
+      "type": "text",
+      "timestamp": "2025-12-28T20:38:46.624011",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "635b962d-979b-4042-a19a-e217af1e75ea",
+      "sender": "roma2332323",
+      "recipient": "roma232efdfd",
+      "message": "ппап",
+      "type": "text",
+      "timestamp": "2025-12-28T20:38:50.540475",
+      "read": false,
+      "edited": false,
+      "reply_to": null,
+      "forward_from": null
+    },
+    {
+      "id": "1f98386d-d1b8-413f-af07-133228a492ec",
+      "sender": "roma2332323",
+      "recipient": "roma232efdfd",
+      "message": "в",
+      "type": "file",
+      "timestamp": "2025-12-28T23:08:41.642832",
+      "read": false,
+      "edited": false,
+      "file_path": "files/2601082e972149ed841fbbd0876ba247.zip",
+      "file_name": "ап.zip",
+      "file_size": 5185020,
+      "file_type": "file"
+    }
+  ],
+  "roma23222fed_roma2332323": [
+    {
+      "id": "00708092-c65c-48f3-80a2-6e011f3c21dc",
+      "sender": "roma23222fed",
+      "recipient": "roma2332323",
+      "message": "dsd",
+      "type": "text",
+      "timestamp": "2025-12-28T23:08:56.353357",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "09b47e61-3ecb-4f55-b474-1eb14f762e1c",
+      "sender": "roma2332323",
+      "recipient": "roma23222fed",
+      "message": "fdf",
+      "type": "text",
+      "timestamp": "2025-12-28T23:08:59.563555",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "1f1b8ff5-0e0d-40c8-b963-dd9861ada3bd",
+      "sender": "roma2332323",
+      "recipient": "roma23222fed",
+      "message": "",
+      "type": "file",
+      "timestamp": "2025-12-28T23:09:13.479380",
+      "read": false,
+      "edited": false,
+      "file_path": "files/e815d2fc3b524ff3ab068140fb3d5529.exe",
+      "file_name": "Windows11InstallationAssistant.exe",
+      "file_size": 4169184,
+      "file_type": "file"
+    },
+    {
+      "id": "db88d471-adbf-4c09-bf7d-8c0b0e7690b0",
+      "sender": "roma2332323",
+      "recipient": "roma23222fed",
+      "message": "",
+      "type": "file",
+      "timestamp": "2025-12-28T23:09:23.757368",
+      "read": false,
+      "edited": false,
+      "file_path": "files/74318f46c27e48b18d25b1070fe65e4c.png",
+      "file_name": "ChatGPT Image 22 дек. 2025 г., 14_38_36.png",
+      "file_size": 1262884,
+      "file_type": "file"
+    },
+    {
+      "id": "345ca9fa-dd11-457d-96b7-3aec6f27c19e",
+      "sender": "roma2332323",
+      "recipient": "roma23222fed",
+      "message": "",
+      "type": "file",
+      "timestamp": "2025-12-28T23:09:52.321025",
+      "read": false,
+      "edited": false,
+      "file_path": "files/a771e48551694d5cb1300b8ea733f0c7.mp4",
+      "file_name": "doc_2025-11-28_19-36-26.mp4",
+      "file_size": 557166,
+      "file_type": "file"
+    }
+  ],
+  "roma2322dfffd_roma2332323": [
+    {
+      "id": "5d06b0ae-0805-4c42-aac0-673f680ff2b6",
+      "sender": "roma2322dfffd",
+      "recipient": "roma2332323",
+      "message": "😠",
+      "type": "sticker",
+      "timestamp": "2025-12-29T12:12:24.757885",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "60e611e1-df57-449c-9a58-2abbda77f3ab",
+      "sender": "roma2322dfffd",
+      "recipient": "roma2332323",
+      "message": "",
+      "type": "file",
+      "timestamp": "2025-12-29T12:12:38.993353",
+      "read": false,
+      "edited": false,
+      "file_path": "files/ef09125a01474c498c084aaf58bcba09.3mf",
+      "file_name": "Deer_V2.3mf",
+      "file_size": 2996695,
+      "file_type": "file"
+    },
+    {
+      "id": "e9b233ad-7f71-48f4-8bd5-47e51447f020",
+      "sender": "roma2322dfffd",
+      "recipient": "roma2332323",
+      "message": "",
+      "type": "file",
+      "timestamp": "2025-12-29T12:12:44.360441",
+      "read": false,
+      "edited": false,
+      "file_path": "files/b0206b18b45144afa7745742a3e46337.webp",
+      "file_name": "i (1).webp",
+      "file_size": 78348,
+      "file_type": "file"
+    },
+    {
+      "id": "3cf13bd7-f57d-4bc2-adcc-9c83156d1c39",
+      "sender": "roma2322dfffd",
+      "recipient": "roma2332323",
+      "message": "",
+      "type": "file",
+      "timestamp": "2025-12-29T12:12:58.818739",
+      "read": false,
+      "edited": false,
+      "file_path": "files/41296956672741f1b8c88ae13f08881d.png",
+      "file_name": "Снимок экрана 2025-12-04 113036.png",
+      "file_size": 2660409,
+      "file_type": "file"
+    },
+    {
+      "id": "5abb2d8f-435f-4cd3-b9cd-c8f4af03a448",
+      "sender": "roma2322dfffd",
+      "recipient": "roma2332323",
+      "message": "",
+      "type": "file",
+      "timestamp": "2025-12-29T12:13:05.329717",
+      "read": false,
+      "edited": false,
+      "file_path": "files/63b6ac82deb1468cbb661d4cff4400d9.mp4",
+      "file_name": "video_2025-12-23_13-12-58.mp4",
+      "file_size": 6912167,
+      "file_type": "file"
+    }
+  ],
+  "dfdfsfgadgsgfgwerg_roma23222fed": [
+    {
+      "id": "14221378-69d5-4c5b-8289-597921b6059d",
+      "sender": "dfdfsfgadgsgfgwerg",
+      "recipient": "roma23222fed",
+      "message": "dff",
+      "type": "text",
+      "timestamp": "2025-12-29T12:13:51.509375",
+      "read": false,
+      "edited": false
+    }
+  ],
+  "dfdfsfgadgsgfgwerg_roma2322dfffd": [
+    {
+      "id": "578fae9b-0399-47e0-9882-d37f10625c9d",
+      "sender": "roma2322dfffd",
+      "recipient": "dfdfsfgadgsgfgwerg",
+      "message": "dfff",
+      "type": "text",
+      "timestamp": "2025-12-29T12:14:35.796363",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "8de2e370-68ba-4b1d-8542-a8359f0a4bf3",
+      "sender": "roma2322dfffd",
+      "recipient": "dfdfsfgadgsgfgwerg",
+      "message": "dfffd",
+      "type": "text",
+      "timestamp": "2025-12-29T12:14:46.856443",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "d64fe58a-c96f-41a6-9534-a9555750c528",
+      "sender": "roma2322dfffd",
+      "recipient": "dfdfsfgadgsgfgwerg",
+      "message": "f",
+      "type": "text",
+      "timestamp": "2025-12-29T12:14:47.413860",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "50d0d362-bc9b-4cb4-8302-d41f76de8320",
+      "sender": "roma2322dfffd",
+      "recipient": "dfdfsfgadgsgfgwerg",
+      "message": "fdf",
+      "type": "text",
+      "timestamp": "2025-12-29T12:14:49.156906",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "13d43e2a-408f-4ea8-b563-8c7c6ecc7465",
+      "sender": "dfdfsfgadgsgfgwerg",
+      "recipient": "roma2322dfffd",
+      "message": "f",
+      "type": "text",
+      "timestamp": "2025-12-29T12:14:57.148997",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "62d18bc4-721b-4136-9200-f6b33de3d799",
+      "sender": "roma2322dfffd",
+      "recipient": "dfdfsfgadgsgfgwerg",
+      "message": "пр",
+      "type": "text",
+      "timestamp": "2025-12-29T12:15:02.756669",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "f1ead3a0-cfc9-47f0-b64f-2a7b072e3ab5",
+      "sender": "dfdfsfgadgsgfgwerg",
+      "recipient": "roma2322dfffd",
+      "message": "пра",
+      "type": "text",
+      "timestamp": "2025-12-29T12:15:17.051588",
+      "read": false,
+      "edited": false
+    }
+  ],
+  "roma2322dfffd_roma33636": [
+    {
+      "id": "a4989e8a-df45-40e0-ade8-b9ec972b19c9",
+      "sender": "roma33636",
+      "recipient": "roma2322dfffd",
+      "message": "Hhd",
+      "type": "text",
+      "timestamp": "2025-12-29T12:15:48.815134",
+      "read": false,
+      "edited": false
+    }
+  ],
+  "dfdfsfgadgsgfgwerg_roma33636": [
+    {
+      "id": "642a02c3-0022-46d3-b223-591ac8a36c9e",
+      "sender": "dfdfsfgadgsgfgwerg",
+      "recipient": "roma33636",
+      "message": "k",
+      "type": "text",
+      "timestamp": "2025-12-29T12:16:04.414730",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "31de2238-6a9c-4184-82c4-161c52b4e117",
+      "sender": "roma33636",
+      "recipient": "dfdfsfgadgsgfgwerg",
+      "message": "Bd",
+      "type": "text",
+      "timestamp": "2025-12-29T12:16:12.275221",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "8066b602-3b83-4e7f-aa3e-d3e5e03a6d91",
+      "sender": "roma33636",
+      "recipient": "dfdfsfgadgsgfgwerg",
+      "message": "🍫",
+      "type": "sticker",
+      "timestamp": "2025-12-29T12:16:20.150630",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "dce71748-c820-450c-8a1c-eed01ea6fe2c",
+      "sender": "roma33636",
+      "recipient": "dfdfsfgadgsgfgwerg",
+      "message": "",
+      "type": "file",
+      "timestamp": "2025-12-29T12:16:48.024546",
+      "read": false,
+      "edited": false,
+      "file_path": "files/8069c46c30b04142a652a0ef02d3f224.pdf",
+      "file_name": "Документ-2025-12-19-165045.pdf",
+      "file_size": 44642,
+      "file_type": "file"
+    },
+    {
+      "id": "d7646c4d-0ee5-4373-996d-020bcbb8ff32",
+      "sender": "dfdfsfgadgsgfgwerg",
+      "recipient": "roma33636",
+      "message": "j",
+      "type": "text",
+      "timestamp": "2025-12-29T12:17:54.939845",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "cfaca394-a7d6-4a4e-8f09-4795893a90ab",
+      "sender": "dfdfsfgadgsgfgwerg",
+      "recipient": "roma33636",
+      "message": "\\",
+      "type": "text",
+      "timestamp": "2025-12-29T12:17:56.231559",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "364fbd96-1106-4afb-9fb7-f304b6be8e57",
+      "sender": "dfdfsfgadgsgfgwerg",
+      "recipient": "roma33636",
+      "message": "n",
+      "type": "text",
+      "timestamp": "2025-12-29T12:17:57.706133",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "2e54f0a3-45ec-42ff-aacb-1e7241585a06",
+      "sender": "dfdfsfgadgsgfgwerg",
+      "recipient": "roma33636",
+      "message": "j",
+      "type": "text",
+      "timestamp": "2025-12-29T12:18:05.311858",
+      "read": false,
+      "edited": false
+    }
   ]
 }

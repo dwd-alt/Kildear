@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let typingTimeout = null;
     let currentAttachment = null;
     let allMessages = [];
+    let isWindowFocused = true;
+    let unreadMessages = {};
 
     // Переменные для звонков
     let activeCall = null;
@@ -41,11 +43,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Элементы для вложений
     const attachPhotoBtn = document.getElementById('attach-photo');
     const attachVideoBtn = document.getElementById('attach-video');
+    const attachFileBtn = document.getElementById('attach-file');
+    const attachStickerBtn = document.getElementById('stickers-toggle');
     const photoInput = document.getElementById('photo-input');
     const videoInput = document.getElementById('video-input');
+    const fileInput = document.getElementById('file-input');
     const attachmentPreview = document.getElementById('attachment-preview');
     const previewImage = document.getElementById('preview-image');
     const previewVideo = document.getElementById('preview-video');
+    const previewFile = document.getElementById('preview-file');
     const previewInfo = document.getElementById('preview-info');
     const removeAttachmentBtn = document.getElementById('remove-attachment');
 
@@ -216,6 +222,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 lastMessage = '🎬 Видео';
             } else if (chat.last_message.type === 'sticker') {
                 lastMessage = '😊 Стикер';
+            } else if (chat.last_message.type === 'file') {
+                lastMessage = '📎 Файл';
+            } else if (chat.last_message.type === 'audio') {
+                lastMessage = '🎵 Аудио';
             } else {
                 lastMessage = chat.last_message.message || '';
             }
@@ -253,6 +263,12 @@ document.addEventListener('DOMContentLoaded', function() {
         currentRecipient = username;
         currentRecipientName = name;
         currentRecipientColor = color;
+
+        // Очищаем непрочитанные сообщения для этого чата
+        if (unreadMessages[username]) {
+            unreadMessages[username] = 0;
+            updateUnreadBadge(username);
+        }
 
         // Сохраняем текущий чат
         saveCurrentChat(username);
@@ -464,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
             reader.onload = function(e) {
                 const base64Data = e.target.result;
                 if (base64Data.length > 50 * 1024 * 1024) {
-                    showNotification('Файл слишком большой (максимум 15MB)', 'error');
+                    showNotification('Файл слишком большой (максимум 50MB)', 'error');
                     removeAttachment();
                     return;
                 }
@@ -527,6 +543,11 @@ document.addEventListener('DOMContentLoaded', function() {
             videoInput.addEventListener('change', (e) => handleFileSelect(e.target.files[0], 'video'));
         }
 
+        if (attachFileBtn && fileInput) {
+            attachFileBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => handleFileSelect(e.target.files[0], 'file'));
+        }
+
         if (removeAttachmentBtn) {
             removeAttachmentBtn.addEventListener('click', removeAttachment);
         }
@@ -535,22 +556,24 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleFileSelect(file, type) {
         if (!file) return;
 
-        const maxSize = 15 * 1024 * 1024;
+        const maxSize = 50 * 1024 * 1024;
         if (file.size > maxSize) {
-            showNotification('Файл слишком большой (максимум 15MB)', 'error');
+            showNotification('Файл слишком большой (максимум 50MB)', 'error');
             return;
         }
 
-        let validTypes = [];
         if (type === 'image') {
-            validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
+            if (file.type && !validTypes.includes(file.type)) {
+                showNotification('Неподдерживаемый формат изображения', 'error');
+                return;
+            }
         } else if (type === 'video') {
-            validTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov'];
-        }
-
-        if (file.type && !validTypes.includes(file.type)) {
-            showNotification(`Неподдерживаемый формат файла`, 'error');
-            return;
+            const validTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov'];
+            if (file.type && !validTypes.includes(file.type)) {
+                showNotification('Неподдерживаемый формат видео', 'error');
+                return;
+            }
         }
 
         currentAttachment = {
@@ -562,31 +585,61 @@ document.addEventListener('DOMContentLoaded', function() {
         showAttachmentPreview();
     }
 
+    function getFileIcon(file) {
+        const extension = file.name.split('.').pop().toLowerCase();
+        const icons = {
+            pdf: '📄',
+            doc: '📝', docx: '📝',
+            xls: '📊', xlsx: '📊',
+            zip: '🗜️', rar: '🗜️', '7z': '🗜️',
+            txt: '📃',
+            mp3: '🎵', wav: '🎵', flac: '🎵',
+            default: '📎'
+        };
+
+        return icons[extension] || icons.default;
+    }
+
     function showAttachmentPreview() {
         if (!attachmentPreview || !currentAttachment) return;
 
         attachmentPreview.style.display = 'block';
 
         if (currentAttachment.type === 'image') {
-            if (previewImage) {
-                previewImage.style.display = 'block';
-                previewImage.innerHTML = `<img src="${currentAttachment.url}" alt="Preview">`;
-            }
-            if (previewVideo) previewVideo.style.display = 'none';
+            previewImage.style.display = 'block';
+            previewImage.innerHTML = `<img src="${currentAttachment.url}" alt="Preview">`;
+            previewVideo.style.display = 'none';
+            previewFile.style.display = 'none';
         } else if (currentAttachment.type === 'video') {
-            if (previewImage) previewImage.style.display = 'none';
-            if (previewVideo) {
-                previewVideo.style.display = 'block';
-                previewVideo.innerHTML = `
-                    <video controls>
-                        <source src="${currentAttachment.url}" type="${currentAttachment.file.type}">
-                    </video>
-                `;
-            }
+            previewImage.style.display = 'none';
+            previewFile.style.display = 'none';
+            previewVideo.style.display = 'block';
+            previewVideo.innerHTML = `
+                <video controls>
+                    <source src="${currentAttachment.url}" type="${currentAttachment.file.type}">
+                </video>
+            `;
+        } else {
+            previewImage.style.display = 'none';
+            previewVideo.style.display = 'none';
+            previewFile.style.display = 'block';
+
+            const fileIcon = getFileIcon(currentAttachment.file);
+            previewFile.innerHTML = `
+                <div class="file-preview">
+                    <div class="file-icon">${fileIcon}</div>
+                    <div class="file-info">
+                        <div class="file-name">${escapeHtml(currentAttachment.file.name)}</div>
+                        <div class="file-size">${formatFileSize(currentAttachment.file.size)}</div>
+                    </div>
+                </div>
+            `;
         }
 
         if (previewInfo) {
-            previewInfo.textContent = `${currentAttachment.type === 'image' ? '📷' : '🎬'} ${currentAttachment.file.name} (${formatFileSize(currentAttachment.file.size)})`;
+            const fileType = currentAttachment.type === 'image' ? '📷' :
+                           currentAttachment.type === 'video' ? '🎬' : '📎';
+            previewInfo.textContent = `${fileType} ${currentAttachment.file.name} (${formatFileSize(currentAttachment.file.size)})`;
         }
     }
 
@@ -668,7 +721,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (message.type === 'image') {
             messageContent = `
                 <div class="message-media">
-                    <img src="/static/uploads/${message.file_path}" alt="Изображение" onclick="openMediaViewer('/static/uploads/${message.file_path}', 'image')">
+                    <img src="/static/uploads/media/${message.file_path}" alt="Изображение" onclick="openMediaViewer('/static/uploads/media/${message.file_path}', 'image')">
                 </div>
                 ${message.message ? `<div class="media-caption">${escapeHtml(message.message)}</div>` : ''}
             `;
@@ -676,10 +729,45 @@ document.addEventListener('DOMContentLoaded', function() {
             messageContent = `
                 <div class="message-media">
                     <video controls>
-                        <source src="/static/uploads/${message.file_path}" type="video/mp4">
+                        <source src="/static/uploads/media/${message.file_path}" type="video/mp4">
                     </video>
                 </div>
                 ${message.message ? `<div class="media-caption">${escapeHtml(message.message)}</div>` : ''}
+            `;
+        } else if (message.type === 'audio') {
+            messageContent = `
+                <div class="message-file">
+                    <div class="file-container">
+                        <div class="file-icon">🎵</div>
+                        <div class="file-info">
+                            <div class="file-name">${escapeHtml(message.file_name)}</div>
+                            <div class="file-size">${formatFileSize(message.file_size)}</div>
+                        </div>
+                        <audio controls>
+                            <source src="/static/uploads/media/${message.file_path}" type="audio/mp3">
+                        </audio>
+                    </div>
+                </div>
+                ${message.message ? `<div class="file-caption">${escapeHtml(message.message)}</div>` : ''}
+            `;
+        } else if (message.type === 'file') {
+            const fileIcon = getFileIcon({name: message.file_name});
+
+            messageContent = `
+                <div class="message-file">
+                    <a href="/static/uploads/${message.file_path}" download="${escapeHtml(message.file_name)}"
+                       class="file-container" target="_blank">
+                        <div class="file-icon">${fileIcon}</div>
+                        <div class="file-info">
+                            <div class="file-name">${escapeHtml(message.file_name)}</div>
+                            <div class="file-size">${formatFileSize(message.file_size)}</div>
+                        </div>
+                        <div class="file-download">
+                            <i class="fas fa-download"></i>
+                        </div>
+                    </a>
+                </div>
+                ${message.message ? `<div class="file-caption">${escapeHtml(message.message)}</div>` : ''}
             `;
         } else if (message.type === 'sticker') {
             messageContent = `
@@ -711,13 +799,29 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!message) return;
 
         if (message.sender === currentRecipient) {
+            // Сообщение от текущего собеседника
             addMessageToDOM(message);
             allMessages.push(message);
             scrollToBottom();
             playMessageSound();
             updateLastMessagePreview(message);
+
+            // Если окно не в фокусе, показываем уведомление сверху
+            if (!isWindowFocused) {
+                showTopNotification(message);
+            }
         } else {
-            showNewMessageNotification(message);
+            // Сообщение от другого пользователя
+            // Увеличиваем счетчик непрочитанных
+            if (!unreadMessages[message.sender]) {
+                unreadMessages[message.sender] = 0;
+            }
+            unreadMessages[message.sender]++;
+            updateUnreadBadge(message.sender);
+
+            // Показываем уведомление сверху
+            showTopNotification(message);
+
             loadContacts();
         }
     }
@@ -783,6 +887,272 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // ============ СТИКЕРЫ ============
+    function initStickers() {
+        const stickersBtn = document.getElementById('stickers-toggle');
+        if (!stickersBtn) return;
+
+        stickersBtn.addEventListener('click', toggleStickers);
+
+        // Создаем контейнер для стикеров
+        const stickersContainer = document.createElement('div');
+        stickersContainer.id = 'stickers-panel';
+        stickersContainer.className = 'stickers-panel';
+
+        stickersContainer.innerHTML = `
+            <div class="stickers-header">
+                <h4><i class="fas fa-sticky-note"></i> Стикеры</h4>
+                <button class="btn-icon close-stickers">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sticker-categories" id="sticker-categories"></div>
+            <div class="stickers-grid" id="stickers-grid"></div>
+        `;
+
+        document.body.appendChild(stickersContainer);
+
+        // Загружаем категории
+        loadStickerCategories();
+
+        // Закрытие по крестику
+        stickersContainer.querySelector('.close-stickers').addEventListener('click', closeStickers);
+
+        // Закрытие при клике вне панели
+        document.addEventListener('click', closeStickersOnClickOutside);
+    }
+
+    function loadStickerCategories() {
+        const categoriesContainer = document.getElementById('sticker-categories');
+        if (!categoriesContainer) return;
+
+        categoriesContainer.innerHTML = '';
+
+        const stickers = {
+            'emotions': 'Эмоции',
+            'animals': 'Животные',
+            'actions': 'Действия',
+            'food': 'Еда',
+            'objects': 'Объекты',
+            'flags': 'Флаги'
+        };
+
+        Object.keys(stickers).forEach(category => {
+            const btn = document.createElement('button');
+            btn.className = 'sticker-category-btn';
+            btn.dataset.category = category;
+            btn.innerHTML = `
+                <span>${stickers[category]}</span>
+            `;
+            btn.addEventListener('click', () => loadStickers(category));
+            categoriesContainer.appendChild(btn);
+        });
+
+        // Загружаем первую категорию
+        if (Object.keys(stickers).length > 0) {
+            loadStickers(Object.keys(stickers)[0]);
+        }
+    }
+
+    function loadStickers(category) {
+        const grid = document.getElementById('stickers-grid');
+        if (!grid) return;
+
+        grid.innerHTML = '';
+
+        const stickerSets = {
+            'emotions': ['😊', '😂', '😍', '😉', '😎', '😢', '😠', '😲', '🤔', '🤦', '😭', '😘'],
+            'animals': ['🐱', '🐶', '🦊', '🦁', '🐯', '🐻', '🐼', '🐰', '🦉', '🦄', '🐵', '🐲'],
+            'actions': ['👍', '👎', '👌', '👏', '🙏', '✊', '👋', '❤️', '🔥', '⭐', '🚀', '🏆'],
+            'food': ['☕', '🍕', '🍺', '🎂', '🍔', '🍣', '🍦', '🍸', '🍿', '🍫'],
+            'objects': ['🎁', '🎈', '🎵', '📷', '📱', '💰', '⏰', '📚', '💻', '🔑'],
+            'flags': ['🇷🇺', '🇺🇸', '🇬🇧', '🇩🇪', '🇫🇷', '🇪🇸', '🇮🇹', '🇯🇵', '🇨🇳', '🇺🇦']
+        };
+
+        if (stickerSets[category]) {
+            stickerSets[category].forEach(emoji => {
+                const stickerEl = document.createElement('div');
+                stickerEl.className = 'sticker-item';
+                stickerEl.innerHTML = `
+                    <div class="sticker-emoji">${emoji}</div>
+                `;
+
+                stickerEl.addEventListener('click', () => {
+                    sendSticker(emoji);
+                    closeStickers();
+                });
+
+                grid.appendChild(stickerEl);
+            });
+        }
+
+        // Обновляем активную категорию
+        document.querySelectorAll('.sticker-category-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.category === category) {
+                btn.classList.add('active');
+            }
+        });
+    }
+
+    function toggleStickers() {
+        const panel = document.getElementById('stickers-panel');
+        if (!panel) return;
+
+        if (panel.classList.contains('show')) {
+            closeStickers();
+        } else {
+            openStickers();
+        }
+    }
+
+    function openStickers() {
+        const panel = document.getElementById('stickers-panel');
+        if (!panel) return;
+
+        panel.classList.add('show');
+    }
+
+    function closeStickers() {
+        const panel = document.getElementById('stickers-panel');
+        if (!panel) return;
+
+        panel.classList.remove('show');
+    }
+
+    function closeStickersOnClickOutside(event) {
+        const panel = document.getElementById('stickers-panel');
+        const stickersBtn = document.getElementById('stickers-toggle');
+
+        if (!panel || !stickersBtn) return;
+
+        if (!panel.contains(event.target) && !stickersBtn.contains(event.target)) {
+            closeStickers();
+        }
+    }
+
+    function sendSticker(emoji) {
+        if (!currentRecipient) {
+            showNotification('Выберите чат для отправки стикера', 'info');
+            return;
+        }
+
+        const messageData = {
+            recipient: currentRecipient,
+            message: emoji,
+            type: 'sticker'
+        };
+
+        const originalIcon = sendMessageBtn.innerHTML;
+        sendMessageBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        sendMessageBtn.disabled = true;
+
+        socket.emit('send_message', messageData, (response) => {
+            sendMessageBtn.innerHTML = originalIcon;
+            sendMessageBtn.disabled = false;
+
+            if (response && response.error) {
+                showNotification('Ошибка отправки: ' + response.error, 'error');
+            }
+        });
+    }
+
+    // ============ УВЕДОМЛЕНИЯ СВЕРХУ ============
+    function showTopNotification(message) {
+        // Получаем информацию об отправителе
+        fetch(`/api/user/${message.sender}`)
+            .then(response => response.json())
+            .then(user => {
+                if (user.error) return;
+
+                const notification = document.createElement('div');
+                notification.className = 'new-message-notification';
+
+                // Определяем цвет аватарки
+                let avatarColor = user.avatar_color || '#4ECDC4';
+                if (message.sender === currentRecipient) {
+                    avatarColor = currentRecipientColor;
+                }
+
+                let messageText = '';
+                if (message.type === 'image') {
+                    messageText = '📷 Изображение';
+                } else if (message.type === 'video') {
+                    messageText = '🎬 Видео';
+                } else if (message.type === 'sticker') {
+                    messageText = '😊 Стикер';
+                } else if (message.type === 'file') {
+                    messageText = '📎 Файл';
+                } else if (message.type === 'audio') {
+                    messageText = '🎵 Аудио';
+                } else {
+                    messageText = message.message.length > 30 ?
+                        message.message.substring(0, 30) + '...' :
+                        message.message;
+                }
+
+                notification.innerHTML = `
+                    <div class="notification-avatar" style="background: ${avatarColor}">
+                        ${user.name[0].toUpperCase()}
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-sender">${escapeHtml(user.name)}</div>
+                        <div class="notification-message">${escapeHtml(messageText)}</div>
+                    </div>
+                    <button class="notification-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+
+                // Обработчик закрытия
+                notification.querySelector('.notification-close').addEventListener('click', () => {
+                    notification.remove();
+                });
+
+                // Обработчик клика по уведомлению
+                notification.addEventListener('click', () => {
+                    openChat(message.sender, user.name, avatarColor);
+                    notification.remove();
+                });
+
+                // Автоматическое скрытие через 5 секунд
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 5000);
+
+                // Удаляем старое уведомление, если есть
+                const oldNotification = document.querySelector('.new-message-notification');
+                if (oldNotification) {
+                    oldNotification.remove();
+                }
+
+                document.body.appendChild(notification);
+            })
+            .catch(console.error);
+    }
+
+    function updateUnreadBadge(username) {
+        const contactItem = document.querySelector(`.contact-item[data-username="${username}"]`);
+        if (contactItem) {
+            let badge = contactItem.querySelector('.unread-badge');
+            const unreadCount = unreadMessages[username] || 0;
+
+            if (unreadCount > 0) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'unread-badge';
+                    contactItem.appendChild(badge);
+                }
+                badge.textContent = unreadCount > 99 ? '99+' : unreadCount.toString();
+                badge.style.display = 'block';
+            } else if (badge) {
+                badge.style.display = 'none';
+            }
+        }
+    }
+
     // ============ ЗВОНКИ ============
     function initCallSystem() {
         // Обработчики кнопок звонка
@@ -808,11 +1178,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const constraints = {
-                audio: true,
-                video: type === 'video'
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true,
+                    sampleRate: 48000,
+                    channelCount: 1
+                },
+                video: type === 'video' ? {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    frameRate: { ideal: 30 }
+                } : false
             };
 
             localStream = await navigator.mediaDevices.getUserMedia(constraints);
+            console.log('Локальный поток получен:', localStream.getAudioTracks().length, 'аудио дорожек');
 
             const callId = 'call_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
@@ -881,8 +1262,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const constraints = {
-                audio: true,
-                video: activeCall.type === 'video'
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                },
+                video: activeCall.type === 'video' ? {
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                } : false
             };
 
             localStream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -899,7 +1287,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 peerConnection.addTrack(track, localStream);
             });
 
-            const offer = await peerConnection.createOffer();
+            const offer = await peerConnection.createOffer({
+                offerToReceiveAudio: true,
+                offerToReceiveVideo: activeCall.type === 'video'
+            });
             await peerConnection.setLocalDescription(offer);
 
             socket.emit('webrtc_signal', {
@@ -910,6 +1301,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         } catch (error) {
             console.error('Ошибка при принятии звонка:', error);
+            showNotification('Ошибка при запуске камеры/микрофона', 'error');
             endCall();
         }
     }
@@ -952,7 +1344,10 @@ document.addEventListener('DOMContentLoaded', function() {
             peerConnection.addTrack(track, localStream);
         });
 
-        peerConnection.createOffer()
+        peerConnection.createOffer({
+            offerToReceiveAudio: true,
+            offerToReceiveVideo: activeCall.type === 'video'
+        })
             .then(offer => peerConnection.setLocalDescription(offer))
             .then(() => {
                 socket.emit('webrtc_signal', {
@@ -1007,9 +1402,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         call_id: activeCall.id,
                         signal: peerConnection.localDescription
                     });
-                });
+                })
+                .catch(error => console.error('Ошибка обработки offer:', error));
         } else if (signal.type === 'answer') {
-            peerConnection.setRemoteDescription(new RTCSessionDescription(signal));
+            peerConnection.setRemoteDescription(new RTCSessionDescription(signal))
+                .catch(error => console.error('Ошибка установки answer:', error));
         }
     }
 
@@ -1017,15 +1414,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!activeCall || activeCall.id !== data.call_id || !peerConnection) return;
 
         const candidate = new RTCIceCandidate(data.candidate);
-        peerConnection.addIceCandidate(candidate);
+        peerConnection.addIceCandidate(candidate)
+            .catch(error => console.error('Ошибка добавления ICE кандидата:', error));
     }
 
     function createPeerConnection() {
         const configuration = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ]
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' },
+                { urls: 'stun:stun4.l.google.com:19302' }
+            ],
+            iceCandidatePoolSize: 10
         };
 
         peerConnection = new RTCPeerConnection(configuration);
@@ -1042,23 +1444,36 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         peerConnection.ontrack = (event) => {
+            console.log('Получен удаленный поток:', event.streams[0]);
             remoteStream = event.streams[0];
             if (remoteVideo) {
                 remoteVideo.srcObject = remoteStream;
+                remoteVideo.onloadedmetadata = () => {
+                    console.log('Удаленное видео загружено');
+                    remoteVideo.play().catch(e => console.error('Ошибка воспроизведения:', e));
+                };
             }
         };
 
         peerConnection.onconnectionstatechange = () => {
+            console.log('Состояние соединения:', peerConnection.connectionState);
             if (peerConnection.connectionState === 'failed') {
+                showNotification('Ошибка соединения', 'error');
                 endCall();
+            } else if (peerConnection.connectionState === 'connected') {
+                console.log('Соединение установлено!');
             }
+        };
+
+        peerConnection.oniceconnectionstatechange = () => {
+            console.log('ICE состояние:', peerConnection.iceConnectionState);
         };
     }
 
     function showCallInterface(type) {
         if (!callModal) return;
 
-        callModal.style.display = 'block';
+        callModal.style.display = 'flex';
 
         if (type === 'outgoing') {
             callTitle.textContent = 'Исходящий звонок';
@@ -1104,6 +1519,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (localStream) {
                 localVideo.srcObject = localStream;
                 localVideo.style.display = activeCall.type === 'video' ? 'block' : 'none';
+                localVideo.play().catch(e => console.error('Ошибка воспроизведения локального видео:', e));
             }
             remoteVideo.style.display = activeCall.type === 'video' ? 'block' : 'none';
 
@@ -1233,6 +1649,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 let shortMessage = '';
                 if (message.type === 'image') shortMessage = '📷 Изображение';
                 else if (message.type === 'video') shortMessage = '🎬 Видео';
+                else if (message.type === 'audio') shortMessage = '🎵 Аудио';
+                else if (message.type === 'file') shortMessage = '📎 Файл';
                 else if (message.type === 'sticker') shortMessage = '😊 Стикер';
                 else shortMessage = message.message.length > 30 ? message.message.substring(0, 30) + '...' : message.message;
 
@@ -1296,16 +1714,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.body.appendChild(notification);
 
-        setTimeout(() => notification.classList.add('show'), 10);
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+
         setTimeout(() => {
             notification.classList.remove('show');
-            setTimeout(() => notification.parentNode?.removeChild(notification), 300);
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
         }, 3000);
-    }
-
-    function showNewMessageNotification(message) {
-        showNotification(`Новое сообщение от ${message.sender}`, 'info');
-        playMessageSound();
     }
 
     function formatTime(timestamp) {
@@ -1366,6 +1786,22 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
+    // ============ ОТСЛЕЖИВАНИЕ ФОКУСА ОКНА ============
+    function initWindowFocusTracking() {
+        window.addEventListener('focus', () => {
+            isWindowFocused = true;
+        });
+
+        window.addEventListener('blur', () => {
+            isWindowFocused = false;
+        });
+
+        // Также отслеживаем видимость страницы
+        document.addEventListener('visibilitychange', () => {
+            isWindowFocused = !document.hidden;
+        });
+    }
+
     // ============ ГЛОБАЛЬНЫЕ ФУНКЦИИ ДЛЯ МЕДИА ============
     window.openMediaViewer = function(url, type) {
         const viewer = document.createElement('div');
@@ -1398,6 +1834,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initSearch();
     initMessageForm();
     initCallSystem();
+    initStickers();
+    initWindowFocusTracking();
 
     // Загрузка контактов
     loadContacts();

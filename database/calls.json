@@ -1,0 +1,32 @@
+{
+  "call_1766938604350_kwwa2ho4f": {
+    "call_id": "call_1766938604350_kwwa2ho4f",
+    "caller": "roma23222fed",
+    "callee": "roma2332323",
+    "type": "audio",
+    "started_at": "2025-12-28T23:16:44.353294",
+    "ended_at": "2025-12-28T23:16:48.701496",
+    "duration": 0,
+    "ended_by": "roma2332323"
+  },
+  "call_1766938771719_gf17qxymo": {
+    "call_id": "call_1766938771719_gf17qxymo",
+    "caller": "roma23222fed",
+    "callee": "roma33636",
+    "type": "audio",
+    "started_at": "2025-12-28T23:19:31.723115",
+    "ended_at": "2025-12-28T23:19:33.630755",
+    "duration": 0,
+    "ended_by": "roma33636"
+  },
+  "call_1766938879663_zl055smw1": {
+    "call_id": "call_1766938879663_zl055smw1",
+    "caller": "roma23222fed",
+    "callee": "roma33636",
+    "type": "video",
+    "started_at": "2025-12-28T23:21:19.667449",
+    "ended_at": "2025-12-28T23:21:22.908644",
+    "duration": 0,
+    "ended_by": "roma33636"
+  }
+}

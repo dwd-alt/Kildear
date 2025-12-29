@@ -106,6 +106,13 @@
                         <i class="fas fa-video"></i>
                         <input type="file" id="video-input" accept="video/*" style="display: none;">
                     </button>
+                    <button type="button" class="btn-icon" id="attach-file" title="Отправить файл">
+                        <i class="fas fa-paperclip"></i>
+                        <input type="file" id="file-input" accept="*/*" style="display: none;">
+                    </button>
+                    <button type="button" class="btn-icon" id="stickers-toggle" title="Стикеры">
+                        <i class="fas fa-smile"></i>
+                    </button>
                 </div>
 
                 <div id="message-form">
@@ -125,6 +132,7 @@
                     <div class="preview-content">
                         <div class="preview-image" id="preview-image"></div>
                         <div class="preview-video" id="preview-video"></div>
+                        <div class="preview-file" id="preview-file"></div>
                     </div>
                     <button type="button" class="btn-icon btn-remove-attachment" id="remove-attachment">
                         <i class="fas fa-times"></i>
