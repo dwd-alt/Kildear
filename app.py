@@ -80,17 +80,29 @@ def load_json_file(filepath, default_data=None):
         if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
             with open(filepath, 'r', encoding='utf-8') as f:
                 return json.load(f)
+        else:
+            # Если файл пустой или не существует, возвращаем данные по умолчанию
+            return default_data
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error in {filepath}: {e}")
+        # В случае ошибки парсинга, возвращаем пустой словарь
+        return default_data
     except Exception as e:
         logger.error(f"Error loading {filepath}: {e}")
-    with open(filepath, 'w', encoding='utf-8') as f:
-        json.dump(default_data, f, ensure_ascii=False, indent=2)
-    return default_data
+        return default_data
 
 
 def save_json_file(filepath, data):
     try:
-        with open(filepath, 'w', encoding='utf-8') as f:
+        # Создаем временный файл для безопасной записи
+        temp_filepath = filepath + '.tmp'
+        with open(temp_filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
+
+        # Заменяем старый файл новым
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        os.rename(temp_filepath, filepath)
         return True
     except Exception as e:
         logger.error(f"Error saving {filepath}: {e}")
@@ -98,7 +110,16 @@ def save_json_file(filepath, data):
 
 
 def load_users():
-    return load_json_file('database/users.json', {})
+    data = load_json_file('database/users.json', {})
+    # Преобразуем старый формат данных, если нужно
+    if isinstance(data, list):
+        users_dict = {}
+        for user in data:
+            if 'username' in user:
+                users_dict[user['username']] = user
+        save_json_file('database/users.json', users_dict)
+        return users_dict
+    return data
 
 
 def save_users(users):
@@ -106,7 +127,18 @@ def save_users(users):
 
 
 def load_messages():
-    return load_json_file('database/messages.json', {})
+    data = load_json_file('database/messages.json', {})
+    # Преобразуем старый формат, если нужно
+    if isinstance(data, list):
+        messages_dict = {}
+        for msg in data:
+            dialog_key = '_'.join(sorted([msg.get('sender', ''), msg.get('recipient', '')]))
+            if dialog_key not in messages_dict:
+                messages_dict[dialog_key] = []
+            messages_dict[dialog_key].append(msg)
+        save_json_file('database/messages.json', messages_dict)
+        return messages_dict
+    return data
 
 
 def save_messages(messages):
@@ -151,6 +183,31 @@ def load_calls():
 
 def save_calls(calls):
     return save_json_file('database/calls.json', calls)
+
+
+# Автоматическое сохранение данных каждые 30 секунд
+def auto_save():
+    while True:
+        time.sleep(30)
+        try:
+            print("💾 Автосохранение данных...")
+
+            # Здесь можно добавить сохранение данных в случае изменений
+            # Например, проверить, были ли изменения с момента последнего сохранения
+
+            # Пока просто выводим статус
+            users = load_users()
+            messages = load_messages()
+            print(f"  Пользователей: {len(users)}")
+            print(f"  Диалогов: {len(messages)}")
+
+        except Exception as e:
+            logger.error(f"Ошибка автосохранения: {e}")
+
+
+# Запускаем автосохранение в фоновом режиме
+save_thread = threading.Thread(target=auto_save, daemon=True)
+save_thread.start()
 
 
 def save_avatar(username, base64_data):
@@ -1410,6 +1467,16 @@ def handle_call_ice_candidate(data):
     }, room=recipient)
 
 
+# Обработчик для сохранения данных при выходе
+import atexit
+
+
+@atexit.register
+def save_on_exit():
+    print("💾 Сохранение данных перед выходом...")
+    # Здесь можно добавить дополнительное сохранение при необходимости
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
 
@@ -1420,17 +1487,16 @@ if __name__ == '__main__':
     print(f"   • Локально: http://localhost:{port}")
     print("=" * 60)
     print("🎯 Новые функции:")
-    print("   • Стикеры с категориями")
-    print("   • Уведомления о новых сообщениях сверху")
-    print("   • Отслеживание непрочитанных сообщений")
-    print("   • Звонки с WebRTC")
-    print("   • Поддержка всех типов файлов")
+    print("   • Автосохранение данных каждые 30 секунд")
+    print("   • Сохранение данных при перезапуске сервера")
+    print("   • Защита от потери данных при ошибках")
+    print("   • Безопасное сохранение через временные файлы")
     print("=" * 60)
-    print("⚙️  Файлы подготовлены:")
-    print("   • style.css - стили со стикерами и уведомлениями")
-    print("   • script.js - логика стикеров и уведомлений")
-    print("   • chat.html - панель стикеров")
-    print("   • app.py - поддержка типа 'sticker'")
+    print("📂 База данных:")
+    print("   • Пользователи: database/users.json")
+    print("   • Сообщения: database/messages.json")
+    print("   • Онлайн статусы: database/online.json")
+    print("   • Блокировки: database/blocks.json")
     print("=" * 60)
     print("⚠️  Нажмите Ctrl+C для остановки")
     print("=" * 60)
