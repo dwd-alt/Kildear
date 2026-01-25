@@ -26,6 +26,16 @@ document.addEventListener('DOMContentLoaded', function() {
     let isMuted = false;
     let isVideoMuted = false;
 
+    // Переменные для записи голосовых/видео сообщений
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let recordingTimer = null;
+    let recordingStartTime = null;
+    let isRecording = false;
+    let recordingType = null; // 'voice' или 'video'
+    let videoStream = null;
+    let audioStream = null;
+
     // Элементы DOM
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
@@ -44,6 +54,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const attachPhotoBtn = document.getElementById('attach-photo');
     const attachVideoBtn = document.getElementById('attach-video');
     const attachFileBtn = document.getElementById('attach-file');
+    const attachVoiceBtn = document.getElementById('attach-voice');
+    const attachVideoMsgBtn = document.getElementById('attach-video-msg');
     const attachStickerBtn = document.getElementById('stickers-toggle');
     const photoInput = document.getElementById('photo-input');
     const videoInput = document.getElementById('video-input');
@@ -54,6 +66,43 @@ document.addEventListener('DOMContentLoaded', function() {
     const previewFile = document.getElementById('preview-file');
     const previewInfo = document.getElementById('preview-info');
     const removeAttachmentBtn = document.getElementById('remove-attachment');
+
+    // Элементы для записи сообщений
+    const recordingIndicator = document.createElement('div');
+    recordingIndicator.className = 'recording-indicator';
+    recordingIndicator.style.display = 'none';
+    recordingIndicator.innerHTML = `
+        <div class="recording-pulse"></div>
+        <div class="recording-text">Запись...</div>
+        <div class="recording-timer">00:00</div>
+        <button class="btn-icon recording-cancel">
+            <i class="fas fa-times"></i>
+        </button>
+        <button class="btn-icon recording-send">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    `;
+
+    const videoRecorderPreview = document.createElement('div');
+    videoRecorderPreview.className = 'video-recorder-preview';
+    videoRecorderPreview.style.display = 'none';
+    videoRecorderPreview.innerHTML = `
+        <div class="video-preview-container">
+            <video class="video-preview" autoplay muted></video>
+            <div class="recording-controls">
+                <div class="recording-timer">00:00</div>
+                <button class="btn-icon recording-cancel">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button class="btn-icon recording-stop">
+                    <i class="fas fa-stop-circle"></i>
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(recordingIndicator);
+    document.body.appendChild(videoRecorderPreview);
 
     // Элементы для звонков
     const callModal = document.getElementById('call-modal');
@@ -108,6 +157,371 @@ document.addEventListener('DOMContentLoaded', function() {
         socket.on('call_error', handleCallError);
         socket.on('webrtc_signal', handleWebRTCSignal);
         socket.on('call_ice_candidate', handleCallIceCandidate);
+    }
+
+    // ============ ЗАПИСЬ ГОЛОСОВЫХ И ВИДЕО СООБЩЕНИЙ ============
+    function initVoiceVideoRecording() {
+        // Голосовые сообщения
+        if (attachVoiceBtn) {
+            attachVoiceBtn.addEventListener('click', startVoiceRecording);
+        }
+
+        // Видео сообщения
+        if (attachVideoMsgBtn) {
+            attachVideoMsgBtn.addEventListener('click', startVideoRecording);
+        }
+
+        // Обработчики для кнопок записи
+        recordingIndicator.querySelector('.recording-cancel').addEventListener('click', stopRecording);
+        recordingIndicator.querySelector('.recording-send').addEventListener('click', sendRecording);
+
+        videoRecorderPreview.querySelector('.recording-cancel').addEventListener('click', stopVideoRecording);
+        videoRecorderPreview.querySelector('.recording-stop').addEventListener('click', stopVideoRecordingAndSend);
+    }
+
+    async function startVoiceRecording() {
+        if (!currentRecipient) {
+            showNotification('Выберите чат для отправки голосового сообщения', 'info');
+            return;
+        }
+
+        try {
+            audioStream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    sampleRate: 44100
+                }
+            });
+
+            mediaRecorder = new MediaRecorder(audioStream, {
+                mimeType: 'audio/webm;codecs=opus'
+            });
+
+            recordedChunks = [];
+            recordingType = 'voice';
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                // Обработка будет в sendRecording
+            };
+
+            mediaRecorder.start();
+            isRecording = true;
+            recordingStartTime = Date.now();
+
+            // Показываем индикатор записи
+            recordingIndicator.style.display = 'flex';
+            updateRecordingTimer();
+
+            // Запрос на сервер о начале записи
+            fetch('/api/start_voice_recording', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({})
+            });
+
+        } catch (error) {
+            console.error('Ошибка доступа к микрофону:', error);
+            showNotification('Ошибка доступа к микрофону', 'error');
+        }
+    }
+
+    async function startVideoRecording() {
+        if (!currentRecipient) {
+            showNotification('Выберите чат для отправки видео сообщения', 'info');
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                    facingMode: 'user'
+                },
+                audio: true
+            });
+
+            videoStream = stream;
+            mediaRecorder = new MediaRecorder(stream, {
+                mimeType: 'video/webm;codecs=vp9,opus'
+            });
+
+            recordedChunks = [];
+            recordingType = 'video';
+
+            // Показываем превью видео
+            const videoPreview = videoRecorderPreview.querySelector('.video-preview');
+            videoPreview.srcObject = stream;
+            videoRecorderPreview.style.display = 'flex';
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = async () => {
+                // Остановить все треки
+                stream.getTracks().forEach(track => track.stop());
+
+                // Создать превью (thumbnail)
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 160;
+                canvas.height = 120;
+                ctx.drawImage(videoPreview, 0, 0, canvas.width, canvas.height);
+
+                const thumbnailBlob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, 'image/jpeg', 0.8);
+                });
+
+                // Отправить видео сообщение
+                await sendVideoMessage(thumbnailBlob);
+
+                // Скрыть превью
+                videoRecorderPreview.style.display = 'none';
+                videoPreview.srcObject = null;
+            };
+
+            mediaRecorder.start();
+            isRecording = true;
+            recordingStartTime = Date.now();
+
+            // Обновляем таймер
+            updateVideoRecordingTimer();
+
+            // Запрос на сервер о начале записи
+            fetch('/api/start_video_recording', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({})
+            });
+
+        } catch (error) {
+            console.error('Ошибка доступа к камере:', error);
+            showNotification('Ошибка доступа к камере', 'error');
+        }
+    }
+
+    function stopRecording() {
+        if (!isRecording) return;
+
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+        }
+
+        if (audioStream) {
+            audioStream.getTracks().forEach(track => track.stop());
+            audioStream = null;
+        }
+
+        isRecording = false;
+        recordingIndicator.style.display = 'none';
+
+        if (recordingTimer) {
+            clearInterval(recordingTimer);
+            recordingTimer = null;
+        }
+
+        // Запрос на сервер об остановке записи
+        fetch('/api/stop_voice_recording', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({})
+        });
+    }
+
+    function stopVideoRecording() {
+        if (!isRecording || recordingType !== 'video') return;
+
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+        }
+
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+            videoStream = null;
+        }
+
+        isRecording = false;
+        videoRecorderPreview.style.display = 'none';
+
+        if (recordingTimer) {
+            clearInterval(recordingTimer);
+            recordingTimer = null;
+        }
+
+        // Запрос на сервер об остановке записи
+        fetch('/api/stop_video_recording', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({})
+        });
+    }
+
+    async function stopVideoRecordingAndSend() {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+        }
+        // Дальнейшая обработка в onstop
+    }
+
+    function updateRecordingTimer() {
+        if (recordingTimer) clearInterval(recordingTimer);
+
+        recordingTimer = setInterval(() => {
+            const elapsed = Date.now() - recordingStartTime;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            const timerStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            const timerElement = recordingIndicator.querySelector('.recording-timer');
+            if (timerElement) {
+                timerElement.textContent = timerStr;
+            }
+        }, 1000);
+    }
+
+    function updateVideoRecordingTimer() {
+        if (recordingTimer) clearInterval(recordingTimer);
+
+        recordingTimer = setInterval(() => {
+            const elapsed = Date.now() - recordingStartTime;
+            const minutes = Math.floor(elapsed / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            const timerStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            const timerElement = videoRecorderPreview.querySelector('.recording-timer');
+            if (timerElement) {
+                timerElement.textContent = timerStr;
+            }
+        }, 1000);
+    }
+
+    async function sendRecording() {
+        if (!recordedChunks.length || !currentRecipient) return;
+
+        const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
+
+        // Остановить запись если еще идет
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+        }
+
+        // Создать Blob из записанных данных
+        const blob = new Blob(recordedChunks, { type: recordingType === 'voice' ? 'audio/webm' : 'video/webm' });
+
+        if (recordingType === 'voice') {
+            await sendVoiceMessage(blob, duration);
+        }
+
+        // Очистить данные
+        recordedChunks = [];
+        isRecording = false;
+        recordingIndicator.style.display = 'none';
+
+        if (recordingTimer) {
+            clearInterval(recordingTimer);
+            recordingTimer = null;
+        }
+    }
+
+    async function sendVoiceMessage(blob, duration) {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const base64Data = e.target.result;
+
+            const messageData = {
+                recipient: currentRecipient,
+                message: 'Голосовое сообщение',
+                type: 'voice_message',
+                file_data: base64Data,
+                duration: duration
+            };
+
+            const originalIcon = sendMessageBtn.innerHTML;
+            sendMessageBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            sendMessageBtn.disabled = true;
+
+            socket.emit('send_message', messageData, (response) => {
+                sendMessageBtn.innerHTML = originalIcon;
+                sendMessageBtn.disabled = false;
+
+                if (response && response.error) {
+                    showNotification('Ошибка отправки: ' + response.error, 'error');
+                } else {
+                    loadContacts();
+                }
+            });
+        };
+
+        reader.readAsDataURL(blob);
+    }
+
+    async function sendVideoMessage(thumbnailBlob) {
+        if (!recordedChunks.length || !currentRecipient) return;
+
+        const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
+        const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
+
+        // Читаем видео и thumbnail
+        const videoReader = new FileReader();
+        const thumbnailReader = new FileReader();
+
+        const videoPromise = new Promise((resolve) => {
+            videoReader.onload = (e) => resolve(e.target.result);
+            videoReader.readAsDataURL(videoBlob);
+        });
+
+        const thumbnailPromise = new Promise((resolve) => {
+            thumbnailReader.onload = (e) => resolve(e.target.result);
+            thumbnailReader.readAsDataURL(thumbnailBlob);
+        });
+
+        const [videoData, thumbnailData] = await Promise.all([videoPromise, thumbnailPromise]);
+
+        const messageData = {
+            recipient: currentRecipient,
+            message: 'Видео сообщение',
+            type: 'video_message',
+            file_data: videoData,
+            thumbnail_data: thumbnailData,
+            duration: duration
+        };
+
+        const originalIcon = sendMessageBtn.innerHTML;
+        sendMessageBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        sendMessageBtn.disabled = true;
+
+        socket.emit('send_message', messageData, (response) => {
+            sendMessageBtn.innerHTML = originalIcon;
+            sendMessageBtn.disabled = false;
+
+            if (response && response.error) {
+                showNotification('Ошибка отправки: ' + response.error, 'error');
+            } else {
+                loadContacts();
+            }
+        });
+
+        // Очистить данные
+        recordedChunks = [];
+        isRecording = false;
     }
 
     // ============ ПОИСК ПОЛЬЗОВАТЕЛЕЙ ============
@@ -226,6 +640,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 lastMessage = '📎 Файл';
             } else if (chat.last_message.type === 'audio') {
                 lastMessage = '🎵 Аудио';
+            } else if (chat.last_message.type === 'voice_message') {
+                lastMessage = '🎤 Голосовое сообщение';
+            } else if (chat.last_message.type === 'video_message') {
+                lastMessage = '🎥 Видео сообщение';
             } else {
                 lastMessage = chat.last_message.message || '';
             }
@@ -551,6 +969,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (removeAttachmentBtn) {
             removeAttachmentBtn.addEventListener('click', removeAttachment);
         }
+
+        // Инициализация записи голосовых и видео сообщений
+        initVoiceVideoRecording();
     }
 
     function handleFileSelect(file, type) {
@@ -775,6 +1196,44 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="sticker-emoji">${escapeHtml(message.message)}</div>
                 </div>
             `;
+        } else if (message.type === 'voice_message') {
+            const duration = message.duration || 0;
+            const durationStr = formatDuration(duration);
+            messageContent = `
+                <div class="message-voice">
+                    <div class="voice-message-container">
+                        <button class="voice-play-btn">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <div class="voice-waveform">
+                            <div class="voice-wave"></div>
+                            <div class="voice-progress"></div>
+                        </div>
+                        <div class="voice-duration">${durationStr}</div>
+                        <audio src="/static/uploads/${message.file_path}" preload="metadata"></audio>
+                    </div>
+                </div>
+            `;
+        } else if (message.type === 'video_message') {
+            const duration = message.duration || 0;
+            const durationStr = formatDuration(duration);
+            const thumbnail = message.thumbnail_path ? `/static/uploads/${message.thumbnail_path}` : '';
+            messageContent = `
+                <div class="message-video-note">
+                    <div class="video-note-container">
+                        <div class="video-note-preview" onclick="playVideoMessage(this)">
+                            ${thumbnail ? `<img src="${thumbnail}" alt="Видео сообщение" class="video-thumbnail">` : ''}
+                            <div class="video-play-overlay">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="video-duration">${durationStr}</div>
+                        </div>
+                        <video controls style="display: none;">
+                            <source src="/static/uploads/${message.file_path}" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+            `;
         } else {
             messageContent = `<div class="message-text">${escapeHtml(message.message)}</div>`;
         }
@@ -792,7 +1251,50 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
 
         messagesContainer.appendChild(messageElement);
+
+        // Добавляем обработчики для голосовых сообщений
+        if (message.type === 'voice_message') {
+            const playBtn = messageElement.querySelector('.voice-play-btn');
+            const audio = messageElement.querySelector('audio');
+            const progress = messageElement.querySelector('.voice-progress');
+
+            playBtn.addEventListener('click', function() {
+                if (audio.paused) {
+                    audio.play();
+                    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                } else {
+                    audio.pause();
+                    playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                }
+            });
+
+            audio.addEventListener('timeupdate', function() {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                progress.style.width = percent + '%';
+            });
+
+            audio.addEventListener('ended', function() {
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                progress.style.width = '0%';
+            });
+        }
     }
+
+    // Глобальные функции для видео сообщений
+    window.playVideoMessage = function(element) {
+        const container = element.closest('.video-note-container');
+        const video = container.querySelector('video');
+        const preview = container.querySelector('.video-note-preview');
+
+        preview.style.display = 'none';
+        video.style.display = 'block';
+        video.play();
+
+        video.addEventListener('ended', function() {
+            video.style.display = 'none';
+            preview.style.display = 'block';
+        });
+    };
 
     // ============ WEBSOCKET ОБРАБОТЧИКИ ============
     function handleNewMessage(message) {
@@ -1085,6 +1587,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     messageText = '📎 Файл';
                 } else if (message.type === 'audio') {
                     messageText = '🎵 Аудио';
+                } else if (message.type === 'voice_message') {
+                    messageText = '🎤 Голосовое сообщение';
+                } else if (message.type === 'video_message') {
+                    messageText = '🎥 Видео сообщение';
                 } else {
                     messageText = message.message.length > 30 ?
                         message.message.substring(0, 30) + '...' :
@@ -1652,6 +2158,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 else if (message.type === 'audio') shortMessage = '🎵 Аудио';
                 else if (message.type === 'file') shortMessage = '📎 Файл';
                 else if (message.type === 'sticker') shortMessage = '😊 Стикер';
+                else if (message.type === 'voice_message') shortMessage = '🎤 Голосовое';
+                else if (message.type === 'video_message') shortMessage = '🎥 Видео';
                 else shortMessage = message.message.length > 30 ? message.message.substring(0, 30) + '...' : message.message;
 
                 previewElement.textContent = shortMessage;
@@ -1835,6 +2343,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initMessageForm();
     initCallSystem();
     initStickers();
+    initVoiceVideoRecording();
     initWindowFocusTracking();
 
     // Загрузка контактов
@@ -1861,5 +2370,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    console.log('Kildear Messenger инициализирован');
+    // Автоматическая остановка записи при долгом удержании
+    let longPressTimer;
+    if (attachVoiceBtn) {
+        attachVoiceBtn.addEventListener('mousedown', () => {
+            longPressTimer = setTimeout(startVoiceRecording, 500);
+        });
+
+        attachVoiceBtn.addEventListener('mouseup', () => {
+            clearTimeout(longPressTimer);
+        });
+
+        attachVoiceBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            longPressTimer = setTimeout(startVoiceRecording, 500);
+        });
+
+        attachVoiceBtn.addEventListener('touchend', () => {
+            clearTimeout(longPressTimer);
+        });
+    }
+
+    console.log('Kildear Messenger с голосовыми и видео сообщениями инициализирован');
 });

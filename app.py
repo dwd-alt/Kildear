@@ -25,6 +25,8 @@ folders = [
     'static/uploads/media/image',
     'static/uploads/media/video',
     'static/uploads/media/audio',
+    'static/uploads/voice_messages',
+    'static/uploads/video_messages',
     'static/uploads/files',
     'static/uploads/avatars',
     'database'
@@ -43,6 +45,9 @@ socketio = SocketIO(app,
 
 # Хранилище активных звонков
 active_calls = {}
+# Хранилище активных записей голосовых сообщений
+voice_recorders = {}
+video_recorders = {}
 
 
 # Функция инициализации базы данных
@@ -80,29 +85,17 @@ def load_json_file(filepath, default_data=None):
         if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
             with open(filepath, 'r', encoding='utf-8') as f:
                 return json.load(f)
-        else:
-            # Если файл пустой или не существует, возвращаем данные по умолчанию
-            return default_data
-    except json.JSONDecodeError as e:
-        logger.error(f"JSON decode error in {filepath}: {e}")
-        # В случае ошибки парсинга, возвращаем пустой словарь
-        return default_data
     except Exception as e:
         logger.error(f"Error loading {filepath}: {e}")
-        return default_data
+    with open(filepath, 'w', encoding='utf-8') as f:
+        json.dump(default_data, f, ensure_ascii=False, indent=2)
+    return default_data
 
 
 def save_json_file(filepath, data):
     try:
-        # Создаем временный файл для безопасной записи
-        temp_filepath = filepath + '.tmp'
-        with open(temp_filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
-
-        # Заменяем старый файл новым
-        if os.path.exists(filepath):
-            os.remove(filepath)
-        os.rename(temp_filepath, filepath)
         return True
     except Exception as e:
         logger.error(f"Error saving {filepath}: {e}")
@@ -110,16 +103,7 @@ def save_json_file(filepath, data):
 
 
 def load_users():
-    data = load_json_file('database/users.json', {})
-    # Преобразуем старый формат данных, если нужно
-    if isinstance(data, list):
-        users_dict = {}
-        for user in data:
-            if 'username' in user:
-                users_dict[user['username']] = user
-        save_json_file('database/users.json', users_dict)
-        return users_dict
-    return data
+    return load_json_file('database/users.json', {})
 
 
 def save_users(users):
@@ -127,18 +111,7 @@ def save_users(users):
 
 
 def load_messages():
-    data = load_json_file('database/messages.json', {})
-    # Преобразуем старый формат, если нужно
-    if isinstance(data, list):
-        messages_dict = {}
-        for msg in data:
-            dialog_key = '_'.join(sorted([msg.get('sender', ''), msg.get('recipient', '')]))
-            if dialog_key not in messages_dict:
-                messages_dict[dialog_key] = []
-            messages_dict[dialog_key].append(msg)
-        save_json_file('database/messages.json', messages_dict)
-        return messages_dict
-    return data
+    return load_json_file('database/messages.json', {})
 
 
 def save_messages(messages):
@@ -183,31 +156,6 @@ def load_calls():
 
 def save_calls(calls):
     return save_json_file('database/calls.json', calls)
-
-
-# Автоматическое сохранение данных каждые 30 секунд
-def auto_save():
-    while True:
-        time.sleep(30)
-        try:
-            print("💾 Автосохранение данных...")
-
-            # Здесь можно добавить сохранение данных в случае изменений
-            # Например, проверить, были ли изменения с момента последнего сохранения
-
-            # Пока просто выводим статус
-            users = load_users()
-            messages = load_messages()
-            print(f"  Пользователей: {len(users)}")
-            print(f"  Диалогов: {len(messages)}")
-
-        except Exception as e:
-            logger.error(f"Ошибка автосохранения: {e}")
-
-
-# Запускаем автосохранение в фоновом режиме
-save_thread = threading.Thread(target=auto_save, daemon=True)
-save_thread.start()
 
 
 def save_avatar(username, base64_data):
@@ -287,6 +235,54 @@ def save_media_file(file_data, filename, file_type=None):
     except Exception as e:
         logger.error(f"Ошибка сохранения файла: {e}")
         return None, None
+
+
+def save_voice_message(username, file_data, duration):
+    try:
+        if ',' in file_data:
+            file_data = file_data.split(',')[1]
+
+        file_bytes = base64.b64decode(file_data)
+        unique_filename = f"voice_{uuid.uuid4().hex}.mp3"
+        filepath = os.path.join('static/uploads/voice_messages', unique_filename)
+
+        with open(filepath, 'wb') as f:
+            f.write(file_bytes)
+
+        return f"voice_messages/{unique_filename}", duration
+    except Exception as e:
+        logger.error(f"Ошибка сохранения голосового сообщения: {e}")
+        return None, None
+
+
+def save_video_message(username, file_data, duration, thumbnail_data=None):
+    try:
+        if ',' in file_data:
+            file_data = file_data.split(',')[1]
+
+        file_bytes = base64.b64decode(file_data)
+        unique_filename = f"video_{uuid.uuid4().hex}.mp4"
+        filepath = os.path.join('static/uploads/video_messages', unique_filename)
+
+        with open(filepath, 'wb') as f:
+            f.write(file_bytes)
+
+        # Сохраняем превью (thumbnail)
+        thumbnail_path = None
+        if thumbnail_data:
+            if ',' in thumbnail_data:
+                thumbnail_data = thumbnail_data.split(',')[1]
+            thumbnail_bytes = base64.b64decode(thumbnail_data)
+            thumbnail_filename = f"thumb_{uuid.uuid4().hex}.jpg"
+            thumbnail_filepath = os.path.join('static/uploads/video_messages', thumbnail_filename)
+            with open(thumbnail_filepath, 'wb') as f:
+                f.write(thumbnail_bytes)
+            thumbnail_path = f"video_messages/{thumbnail_filename}"
+
+        return f"video_messages/{unique_filename}", duration, thumbnail_path
+    except Exception as e:
+        logger.error(f"Ошибка сохранения видео сообщения: {e}")
+        return None, None, None
 
 
 def generate_color_from_username(username):
@@ -1044,6 +1040,65 @@ def api_save_current_chat():
     return jsonify({'success': True})
 
 
+# Новые эндпоинты для голосовых и видео сообщений
+@app.route('/api/start_voice_recording', methods=['POST'])
+def start_voice_recording():
+    if 'username' not in session:
+        return jsonify({'success': False, 'message': 'Не авторизован'}), 401
+
+    username = session['username']
+    voice_recorders[username] = {
+        'start_time': datetime.now().isoformat(),
+        'is_recording': True
+    }
+
+    return jsonify({'success': True, 'message': 'Запись голоса начата'})
+
+
+@app.route('/api/stop_voice_recording', methods=['POST'])
+def stop_voice_recording():
+    if 'username' not in session:
+        return jsonify({'success': False, 'message': 'Не авторизован'}), 401
+
+    username = session['username']
+    if username in voice_recorders:
+        start_time = datetime.fromisoformat(voice_recorders[username]['start_time'])
+        duration = (datetime.now() - start_time).seconds
+        del voice_recorders[username]
+        return jsonify({'success': True, 'duration': duration})
+
+    return jsonify({'success': False, 'message': 'Запись не найдена'})
+
+
+@app.route('/api/start_video_recording', methods=['POST'])
+def start_video_recording():
+    if 'username' not in session:
+        return jsonify({'success': False, 'message': 'Не авторизован'}), 401
+
+    username = session['username']
+    video_recorders[username] = {
+        'start_time': datetime.now().isoformat(),
+        'is_recording': True
+    }
+
+    return jsonify({'success': True, 'message': 'Запись видео начата'})
+
+
+@app.route('/api/stop_video_recording', methods=['POST'])
+def stop_video_recording():
+    if 'username' not in session:
+        return jsonify({'success': False, 'message': 'Не авторизован'}), 401
+
+    username = session['username']
+    if username in video_recorders:
+        start_time = datetime.fromisoformat(video_recorders[username]['start_time'])
+        duration = (datetime.now() - start_time).seconds
+        del video_recorders[username]
+        return jsonify({'success': True, 'duration': duration})
+
+    return jsonify({'success': False, 'message': 'Запись не найдена'})
+
+
 # WebSocket события для чата
 @socketio.on('connect')
 def handle_connect():
@@ -1118,6 +1173,8 @@ def handle_send_message(data):
     file_name = data.get('file_name')
     file_size = data.get('file_size')
     file_type = data.get('file_type', 'file')
+    duration = data.get('duration', 0)
+    thumbnail_data = data.get('thumbnail_data')
 
     if not recipient or (not message and not file_data and message_type in ['text', 'sticker']):
         return {'error': 'No message content'}
@@ -1150,8 +1207,37 @@ def handle_send_message(data):
         'edited': False
     }
 
-    # Обработка файлов
-    if file_data and file_name:
+    # Обработка голосовых сообщений
+    if message_type == 'voice_message' and file_data:
+        try:
+            file_path, saved_duration = save_voice_message(sender, file_data, duration)
+            if file_path:
+                message_obj['file_path'] = file_path
+                message_obj['duration'] = saved_duration
+                message_obj['type'] = 'voice_message'
+            else:
+                return {'error': 'Failed to save voice message'}
+        except Exception as e:
+            logger.error(f"Error saving voice message: {e}")
+            return {'error': 'Voice message upload failed'}
+
+    # Обработка видео сообщений
+    elif message_type == 'video_message' and file_data:
+        try:
+            file_path, saved_duration, thumbnail_path = save_video_message(sender, file_data, duration, thumbnail_data)
+            if file_path:
+                message_obj['file_path'] = file_path
+                message_obj['duration'] = saved_duration
+                message_obj['thumbnail_path'] = thumbnail_path
+                message_obj['type'] = 'video_message'
+            else:
+                return {'error': 'Failed to save video message'}
+        except Exception as e:
+            logger.error(f"Error saving video message: {e}")
+            return {'error': 'Video message upload failed'}
+
+    # Обработка других файлов
+    elif file_data and file_name:
         try:
             file_path, saved_file_type = save_media_file(file_data, file_name, file_type)
             if file_path:
@@ -1186,7 +1272,7 @@ def handle_send_message(data):
     except Exception as e:
         logger.error(f"Error emitting to sender: {e}")
 
-    logger.info(f"💬 Сообщение от {sender} → {recipient}")
+    logger.info(f"💬 Сообщение от {sender} → {recipient}: {message_type}")
     return {'success': True}
 
 
@@ -1467,16 +1553,6 @@ def handle_call_ice_candidate(data):
     }, room=recipient)
 
 
-# Обработчик для сохранения данных при выходе
-import atexit
-
-
-@atexit.register
-def save_on_exit():
-    print("💾 Сохранение данных перед выходом...")
-    # Здесь можно добавить дополнительное сохранение при необходимости
-
-
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
 
@@ -1487,16 +1563,13 @@ if __name__ == '__main__':
     print(f"   • Локально: http://localhost:{port}")
     print("=" * 60)
     print("🎯 Новые функции:")
-    print("   • Автосохранение данных каждые 30 секунд")
-    print("   • Сохранение данных при перезапуске сервера")
-    print("   • Защита от потери данных при ошибках")
-    print("   • Безопасное сохранение через временные файлы")
-    print("=" * 60)
-    print("📂 База данных:")
-    print("   • Пользователи: database/users.json")
-    print("   • Сообщения: database/messages.json")
-    print("   • Онлайн статусы: database/online.json")
-    print("   • Блокировки: database/blocks.json")
+    print("   • Голосовые сообщения как в Telegram")
+    print("   • Видео сообщения с превью")
+    print("   • Стикеры с категориями")
+    print("   • Уведомления о новых сообщениях сверху")
+    print("   • Отслеживание непрочитанных сообщений")
+    print("   • Звонки с WebRTC")
+    print("   • Поддержка всех типов файлов")
     print("=" * 60)
     print("⚠️  Нажмите Ctrl+C для остановки")
     print("=" * 60)

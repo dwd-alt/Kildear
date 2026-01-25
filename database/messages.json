@@ -435,50 +435,479 @@
       "edited": false
     }
   ],
-  "dsffgsdsfdg_fdsffsgasfgs": [
+  "dsffsdffasdfsa_fdfdf": [
     {
-      "id": "3b0ac8ee-c63c-46b9-950a-886588d6aaee",
-      "sender": "dsffgsdsfdg",
-      "recipient": "fdsffsgasfgs",
-      "message": "sdd",
+      "id": "92db7c53-c21e-42a8-87be-ebd466743d34",
+      "sender": "dsffsdffasdfsa",
+      "recipient": "fdfdf",
+      "message": "f",
       "type": "text",
-      "timestamp": "2025-12-29T17:02:16.784874",
+      "timestamp": "2026-01-21T20:04:20.250558",
       "read": false,
       "edited": false
     },
     {
-      "id": "5f0175ad-4d69-44f5-8794-23e513dae05b",
-      "sender": "fdsffsgasfgs",
-      "recipient": "dsffgsdsfdg",
-      "message": "das",
-      "type": "text",
-      "timestamp": "2025-12-29T17:02:20.483035",
-      "read": false,
-      "edited": false
-    },
-    {
-      "id": "cac5865b-06c0-4d80-877a-3b5f2ac8efdf",
-      "sender": "fdsffsgasfgs",
-      "recipient": "dsffgsdsfdg",
-      "message": "🐶",
+      "id": "8a3ecf25-f90f-42d1-bd9e-0322f09733d1",
+      "sender": "fdfdf",
+      "recipient": "dsffsdffasdfsa",
+      "message": "😢",
       "type": "sticker",
-      "timestamp": "2025-12-29T17:02:30.657301",
+      "timestamp": "2026-01-21T20:04:27.466293",
       "read": false,
       "edited": false
     },
     {
-      "id": "71291cc7-88ea-444e-b34a-f3e7696ee795",
-      "sender": "fdsffsgasfgs",
-      "recipient": "dsffgsdsfdg",
+      "id": "6e09f8d6-0bdc-4a68-934f-09f772e5a30f",
+      "sender": "fdfdf",
+      "recipient": "dsffsdffasdfsa",
+      "message": "🤔",
+      "type": "sticker",
+      "timestamp": "2026-01-21T20:04:29.865262",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "1340aff4-d7af-43f4-afdd-7a338c56b699",
+      "sender": "fdfdf",
+      "recipient": "dsffsdffasdfsa",
       "message": "",
       "type": "file",
-      "timestamp": "2025-12-29T17:02:40.366481",
+      "timestamp": "2026-01-21T20:04:45.202097",
       "read": false,
       "edited": false,
-      "file_path": "files/e74d94c998ee44908bf367fe986a462a.mp4",
-      "file_name": "doc_2025-11-28_19-36-26.mp4",
-      "file_size": 557166,
+      "file_path": "files/d138ec6f14c0476a96081cf3e693fb22.3mf",
+      "file_name": "R.E.P.O._Semibot.3mf",
+      "file_size": 3745861,
       "file_type": "file"
+    }
+  ],
+  "dfsdffsdfsdfsfd_fdsfsffdsff": [
+    {
+      "id": "a1def414-e02f-4f74-a5b7-d2f536992194",
+      "sender": "dfsdffsdfsdfsfd",
+      "recipient": "fdsfsffdsff",
+      "message": "а",
+      "type": "text",
+      "timestamp": "2026-01-21T23:19:21.410985",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "ed7706e0-f8a3-4ded-8a92-d03e2461a371",
+      "sender": "fdsfsffdsff",
+      "recipient": "dfsdffsdfsdfsfd",
+      "message": "а",
+      "type": "text",
+      "timestamp": "2026-01-21T23:19:28.734071",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "68379856-553f-4e98-8072-6adc69ed3bc7",
+      "sender": "fdsfsffdsff",
+      "recipient": "dfsdffsdfsdfsfd",
+      "message": "😢",
+      "type": "sticker",
+      "timestamp": "2026-01-21T23:19:33.034675",
+      "read": false,
+      "edited": false
+    }
+  ],
+  "121212_34324234": [
+    {
+      "id": "de627643-3585-4f21-b680-3c3b68b00910",
+      "sender": "121212",
+      "recipient": "34324234",
+      "message": "df",
+      "type": "text",
+      "timestamp": "2026-01-23T00:21:41.601085",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "5cbf0ef2-f669-4129-a3b6-1acc45e7e7a7",
+      "sender": "34324234",
+      "recipient": "121212",
+      "message": "df",
+      "type": "text",
+      "timestamp": "2026-01-23T00:21:44.530545",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "6c0ec1e6-89bb-423e-9e0d-7429a839d0ff",
+      "sender": "121212",
+      "recipient": "34324234",
+      "message": "df",
+      "type": "text",
+      "timestamp": "2026-01-23T00:21:57.174814",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "124bbaa9-5c59-4726-8275-fe1941f9cd1f",
+      "sender": "121212",
+      "recipient": "34324234",
+      "message": "",
+      "type": "file",
+      "timestamp": "2026-01-23T00:22:05.556514",
+      "read": false,
+      "edited": false,
+      "file_path": "files/beb72be3409b48cd8cacb5210612f810.rar",
+      "file_name": "Snoser install.rar",
+      "file_size": 476946,
+      "file_type": "file"
+    },
+    {
+      "id": "3fb0ba9e-e6d2-4b9b-8a2c-fe77a8e51d2f",
+      "sender": "121212",
+      "recipient": "34324234",
+      "message": "dfgf",
+      "type": "text",
+      "timestamp": "2026-01-23T00:22:25.929049",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "635d75b8-d89c-4f46-ae1a-2f3c05e9c651",
+      "sender": "34324234",
+      "recipient": "121212",
+      "message": "dfg",
+      "type": "text",
+      "timestamp": "2026-01-23T00:22:31.379665",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "5f46f898-d4f0-4cfb-8052-8fa64b12501d",
+      "sender": "34324234",
+      "recipient": "121212",
+      "message": "dfdf",
+      "type": "text",
+      "timestamp": "2026-01-23T00:23:10.351945",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "3c5c7ce0-fd34-4966-9ca0-bec6f2a60981",
+      "sender": "34324234",
+      "recipient": "121212",
+      "message": "df",
+      "type": "text",
+      "timestamp": "2026-01-23T00:23:11.776582",
+      "read": false,
+      "edited": false
+    }
+  ],
+  "121212121212_12121212121212121221221": [
+    {
+      "id": "57619566-6ba5-4b57-a224-21d4f8a511e9",
+      "sender": "12121212121212121221221",
+      "recipient": "121212121212",
+      "message": "f",
+      "type": "text",
+      "timestamp": "2026-01-24T22:03:37.325252",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "028e0fe7-dac3-440a-95d3-d89a51714692",
+      "sender": "121212121212",
+      "recipient": "12121212121212121221221",
+      "message": "ghbdtn",
+      "type": "text",
+      "timestamp": "2026-01-24T22:03:42.277223",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "46f1eb6f-d3a7-4e0b-9e7d-bde2dd490d33",
+      "sender": "12121212121212121221221",
+      "recipient": "121212121212",
+      "message": "в",
+      "type": "text",
+      "timestamp": "2026-01-24T22:03:48.352373",
+      "read": false,
+      "edited": false
+    }
+  ],
+  "12121212121212121221221_1212121212211221212": [
+    {
+      "id": "99518841-ec46-4ff8-b41c-5bc7419ae461",
+      "sender": "1212121212211221212",
+      "recipient": "12121212121212121221221",
+      "message": "а",
+      "type": "text",
+      "timestamp": "2026-01-24T22:07:31.933525",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "0fb3517c-0ab9-493b-8801-2b5db509f90d",
+      "sender": "1212121212211221212",
+      "recipient": "12121212121212121221221",
+      "message": "Видео сообщение",
+      "type": "video_message",
+      "timestamp": "2026-01-24T22:08:01.139073",
+      "read": false,
+      "edited": false,
+      "file_path": "video_messages/video_115a9dd621fd4466b2d1042152851598.mp4",
+      "duration": 5,
+      "thumbnail_path": "video_messages/thumb_de7f98751a394254b22801b49cc66a47.jpg"
+    },
+    {
+      "id": "97ea0f72-557b-48c8-89d2-d1a2f7f95d04",
+      "sender": "1212121212211221212",
+      "recipient": "12121212121212121221221",
+      "message": "Видео сообщение",
+      "type": "video_message",
+      "timestamp": "2026-01-24T22:13:21.011640",
+      "read": false,
+      "edited": false,
+      "file_path": "video_messages/video_4c816c50817549dd9273466802809bb2.mp4",
+      "duration": 4,
+      "thumbnail_path": "video_messages/thumb_2cbe5b413fd44d6bb558426c009c6297.jpg"
+    }
+  ],
+  "12121212121212121221221_231231241421": [
+    {
+      "id": "4d666011-1de9-4194-96a7-9310c29dd68c",
+      "sender": "231231241421",
+      "recipient": "12121212121212121221221",
+      "message": "в",
+      "type": "text",
+      "timestamp": "2026-01-25T00:08:10.747569",
+      "read": false,
+      "edited": false
+    }
+  ],
+  "121212121212_231231241421": [
+    {
+      "id": "6707f7c2-0801-4c43-80a6-3210b172757b",
+      "sender": "231231241421",
+      "recipient": "121212121212",
+      "message": "а",
+      "type": "text",
+      "timestamp": "2026-01-25T00:08:19.296921",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "a8f71f21-5497-45e0-ae5b-6f29d2b08f61",
+      "sender": "231231241421",
+      "recipient": "121212121212",
+      "message": "а",
+      "type": "text",
+      "timestamp": "2026-01-25T00:08:23.432752",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "bdb2dbdd-6cfd-49b1-ad8b-696956acadcb",
+      "sender": "121212121212",
+      "recipient": "231231241421",
+      "message": "а",
+      "type": "text",
+      "timestamp": "2026-01-25T00:08:48.423631",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "d2ddbb53-dcaf-446a-956f-0adb94ce6bff",
+      "sender": "231231241421",
+      "recipient": "121212121212",
+      "message": "Видео сообщение",
+      "type": "video_message",
+      "timestamp": "2026-01-25T00:08:56.855511",
+      "read": false,
+      "edited": false,
+      "file_path": "video_messages/video_5d999a5bda514ab6a04c3ca4c67fe5ce.mp4",
+      "duration": 3,
+      "thumbnail_path": "video_messages/thumb_5446a19bff3a4c0e95f2561c8fecb142.jpg"
+    },
+    {
+      "id": "8fa5df72-b650-4b94-9795-be92abe3f531",
+      "sender": "231231241421",
+      "recipient": "121212121212",
+      "message": "🇷🇺",
+      "type": "sticker",
+      "timestamp": "2026-01-25T00:09:15.202046",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "ce031bf8-f36e-4049-ad6d-e42840946f8e",
+      "sender": "231231241421",
+      "recipient": "121212121212",
+      "message": "f",
+      "type": "text",
+      "timestamp": "2026-01-25T00:17:37.000198",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "e5b282e7-2871-4bdb-bd76-6355955911cc",
+      "sender": "121212121212",
+      "recipient": "231231241421",
+      "message": "fg",
+      "type": "text",
+      "timestamp": "2026-01-25T00:17:43.657530",
+      "read": false,
+      "edited": false
+    }
+  ],
+  "12121212121231233431213213_21212121211212122121212121233323fdfdff": [
+    {
+      "id": "458f7999-1fde-42e0-a242-afdca044cbb2",
+      "sender": "12121212121231233431213213",
+      "recipient": "21212121211212122121212121233323fdfdff",
+      "message": "f",
+      "type": "text",
+      "timestamp": "2026-01-25T01:01:00.013390",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "edb4775e-47b2-41d3-9d4b-0e572e5c819f",
+      "sender": "12121212121231233431213213",
+      "recipient": "21212121211212122121212121233323fdfdff",
+      "message": "f",
+      "type": "text",
+      "timestamp": "2026-01-25T01:01:05.173784",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "b4c38986-646e-4daa-ad78-97907820aca2",
+      "sender": "12121212121231233431213213",
+      "recipient": "21212121211212122121212121233323fdfdff",
+      "message": "Видео сообщение",
+      "type": "video_message",
+      "timestamp": "2026-01-25T01:01:11.267265",
+      "read": false,
+      "edited": false,
+      "file_path": "video_messages/video_d5832c3d55e946df9cc6c793896b03e4.mp4",
+      "duration": 1,
+      "thumbnail_path": "video_messages/thumb_10691bad50284e028cc3e10d8058a185.jpg"
+    },
+    {
+      "id": "c6ba5c58-1801-49a7-a4c2-fda4ae3e0c08",
+      "sender": "12121212121231233431213213",
+      "recipient": "21212121211212122121212121233323fdfdff",
+      "message": "😍",
+      "type": "sticker",
+      "timestamp": "2026-01-25T01:01:19.449062",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "2155ddf2-8add-437a-8b1c-b826dc0bf530",
+      "sender": "21212121211212122121212121233323fdfdff",
+      "recipient": "12121212121231233431213213",
+      "message": "f",
+      "type": "text",
+      "timestamp": "2026-01-25T01:01:24.871114",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "283db1eb-db8c-42b0-b883-caaf87cf4eed",
+      "sender": "12121212121231233431213213",
+      "recipient": "21212121211212122121212121233323fdfdff",
+      "message": "cXvf",
+      "type": "text",
+      "timestamp": "2026-01-25T01:01:36.802006",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "051a1fcb-42c7-4d5d-ad7f-2271b9baee12",
+      "sender": "12121212121231233431213213",
+      "recipient": "21212121211212122121212121233323fdfdff",
+      "message": "в",
+      "type": "text",
+      "timestamp": "2026-01-25T01:03:43.111535",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "4fd54473-2659-44bd-9ddb-83c89c5b0115",
+      "sender": "12121212121231233431213213",
+      "recipient": "21212121211212122121212121233323fdfdff",
+      "message": "Видео сообщение",
+      "type": "video_message",
+      "timestamp": "2026-01-25T01:03:49.886867",
+      "read": false,
+      "edited": false,
+      "file_path": "video_messages/video_2d5ebd4c440b447da4a46b97ec24c6f6.mp4",
+      "duration": 2,
+      "thumbnail_path": "video_messages/thumb_55a23276f13048899606f9ba27afe92d.jpg"
+    },
+    {
+      "id": "c8e1533a-a064-40ea-a6e7-d950067f613b",
+      "sender": "21212121211212122121212121233323fdfdff",
+      "recipient": "12121212121231233431213213",
+      "message": "ва",
+      "type": "text",
+      "timestamp": "2026-01-25T01:05:19.511814",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "55bf9de6-5bb9-4f65-9ea1-3c9fab76d87b",
+      "sender": "12121212121231233431213213",
+      "recipient": "21212121211212122121212121233323fdfdff",
+      "message": "😍",
+      "type": "sticker",
+      "timestamp": "2026-01-25T01:06:03.074295",
+      "read": false,
+      "edited": false
+    }
+  ],
+  "1212112222212121212121212121_12121212121231233431213213": [
+    {
+      "id": "934ae241-7e2d-48ac-8a95-6726d175e0be",
+      "sender": "1212112222212121212121212121",
+      "recipient": "12121212121231233431213213",
+      "message": "f",
+      "type": "text",
+      "timestamp": "2026-01-25T01:06:42.007796",
+      "read": false,
+      "edited": false
+    },
+    {
+      "id": "1db9b2f1-90e0-49f4-8fec-6d6a67f4760c",
+      "sender": "12121212121231233431213213",
+      "recipient": "1212112222212121212121212121",
+      "message": "f",
+      "type": "text",
+      "timestamp": "2026-01-25T01:06:46.116006",
+      "read": false,
+      "edited": false
+    }
+  ],
+  "12121212121212121221221_12121212121231233431213213": [
+    {
+      "id": "03abf096-c6e2-4cd4-9d70-fd90aa999bf2",
+      "sender": "12121212121212121221221",
+      "recipient": "12121212121231233431213213",
+      "message": "f",
+      "type": "text",
+      "timestamp": "2026-01-25T01:07:37.312502",
+      "read": false,
+      "edited": false
+    }
+  ],
+  "123214123412_2332133123": [
+    {
+      "id": "ce9d789d-918a-432a-bbf1-59ffcd023dc8",
+      "sender": "2332133123",
+      "recipient": "123214123412",
+      "message": "123214123412df",
+      "type": "text",
+      "timestamp": "2026-01-25T13:44:32.920176",
+      "read": false,
+      "edited": false
     }
   ]
 }

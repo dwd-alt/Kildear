@@ -1,0 +1,1072 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="channels-page">
+    <nav class="page-nav">
+        <a href="{{ url_for('chat') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Назад к чатам</span>
+        </a>
+        <h1><i class="fas fa-broadcast-tower"></i> Каналы</h1>
+        <button class="btn btn-primary" id="create-channel-btn">
+            <i class="fas fa-plus"></i> Создать канал
+        </button>
+    </nav>
+
+    <div class="page-content">
+        <div class="channels-sidebar">
+            <div class="sidebar-section">
+                <h3><i class="fas fa-list"></i> Мои каналы</h3>
+                <div class="sidebar-list" id="my-channels-list">
+                    <!-- Каналы загружаются через JavaScript -->
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3><i class="fas fa-user-plus"></i> Подписаться</h3>
+                <div class="join-channel-form">
+                    <input type="text" id="channel-invite-code" placeholder="Код приглашения">
+                    <button class="btn btn-outline" id="join-channel-btn">Подписаться</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="channels-main" id="channels-main">
+            <div class="empty-state" id="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-broadcast-tower"></i>
+                </div>
+                <h2>Выберите канал</h2>
+                <p>Выберите канал из списка или создайте новый</p>
+            </div>
+
+            <div class="channel-info" id="channel-info" style="display: none;">
+                <!-- Информация о канале загружается динамически -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно создания канала -->
+<div id="create-channel-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-broadcast-tower"></i> Создать канал</h3>
+            <button class="btn-icon close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="create-channel-form">
+                <div class="form-group">
+                    <label for="channel-name">Название канала *</label>
+                    <input type="text" id="channel-name" required maxlength="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="channel-description">Описание</label>
+                    <textarea id="channel-description" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Тип канала</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="channel-type" value="public" checked>
+                            <span>Публичный</span>
+                            <small>Любой может подписаться по коду</small>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="channel-type" value="private">
+                            <span>Закрытый</span>
+                            <small>Только по приглашению</small>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Тип контента</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="channel-content" value="normal" checked>
+                            <span>Обычный</span>
+                            <small>Все подписчики могут писать</small>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="channel-content" value="read-only">
+                            <span>Только чтение</span>
+                            <small>Только админы могут публиковать</small>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline close-modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Создать канал
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно настроек канала -->
+<div id="channel-settings-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-cog"></i> Настройки канала</h3>
+            <button class="btn-icon close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="channel-settings-form">
+                <!-- Настройки загружаются динамически -->
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const myChannelsList = document.getElementById('my-channels-list');
+    const channelsMain = document.getElementById('channels-main');
+    const emptyState = document.getElementById('empty-state');
+    const channelInfo = document.getElementById('channel-info');
+    const createChannelBtn = document.getElementById('create-channel-btn');
+    const createChannelModal = document.getElementById('create-channel-modal');
+    const channelSettingsModal = document.getElementById('channel-settings-modal');
+    const joinChannelBtn = document.getElementById('join-channel-btn');
+    const channelInviteCodeInput = document.getElementById('channel-invite-code');
+    let currentChannelId = null;
+
+    // Загрузка списка каналов
+    function loadMyChannels() {
+        fetch('/api/channels/my')
+            .then(response => response.json())
+            .then(channels => {
+                displayMyChannels(channels);
+            })
+            .catch(error => {
+                console.error('Error loading channels:', error);
+            });
+    }
+
+    // Отображение списка каналов
+    function displayMyChannels(channels) {
+        myChannelsList.innerHTML = '';
+
+        if (channels.length === 0) {
+            myChannelsList.innerHTML = '<div class="no-items">У вас пока нет каналов</div>';
+            return;
+        }
+
+        channels.forEach(channel => {
+            const channelItem = document.createElement('div');
+            channelItem.className = 'sidebar-item';
+            channelItem.dataset.channelId = channel.id;
+            channelItem.innerHTML = `
+                <div class="item-avatar" style="background: ${channel.avatar_color || '#4ECDC4'}">
+                    ${channel.avatar ? `<img src="${channel.avatar}" alt="${channel.name}">` : channel.name[0].toUpperCase()}
+                    ${channel.is_read_only ? '<span class="read-only-badge" title="Только чтение"><i class="fas fa-lock"></i></span>' : ''}
+                </div>
+                <div class="item-info">
+                    <h4>${escapeHtml(channel.name)}</h4>
+                    <p>${channel.subscribers_count || 0} подписчиков</p>
+                </div>
+            `;
+
+            channelItem.addEventListener('click', () => {
+                openChannel(channel.id);
+            });
+
+            myChannelsList.appendChild(channelItem);
+        });
+    }
+
+    // Открытие канала
+    function openChannel(channelId) {
+        currentChannelId = channelId;
+        fetch(`/api/channels/${channelId}`)
+            .then(response => response.json())
+            .then(channel => {
+                displayChannelInfo(channel);
+                emptyState.style.display = 'none';
+                channelInfo.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error loading channel:', error);
+                showNotification('Ошибка загрузки канала', 'error');
+            });
+    }
+
+    // Отображение информации о канале
+    function displayChannelInfo(channel) {
+        const canPost = !channel.is_read_only || channel.role === 'creator' || channel.role === 'admin';
+
+        channelInfo.innerHTML = `
+            <div class="channel-header">
+                <div class="channel-avatar" style="background: ${channel.avatar_color || '#4ECDC4'}">
+                    ${channel.avatar ? `<img src="${channel.avatar}" alt="${channel.name}">` : channel.name[0].toUpperCase()}
+                    ${channel.is_read_only ? '<span class="read-only-badge" title="Только чтение"><i class="fas fa-lock"></i></span>' : ''}
+                </div>
+                <div class="channel-title">
+                    <h2>${escapeHtml(channel.name)}</h2>
+                    <p class="channel-meta">
+                        <span class="channel-type">${channel.is_public ? 'Публичный' : 'Закрытый'} канал</span>
+                        • ${channel.subscribers_count || 0} подписчиков
+                        ${channel.is_read_only ? '• Только чтение' : ''}
+                    </p>
+                </div>
+                <div class="channel-actions">
+                    <button class="btn-icon" id="channel-settings-btn" title="Настройки">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button class="btn-icon" id="channel-invite-btn" title="Пригласить">
+                        <i class="fas fa-user-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="channel-description">
+                ${channel.description ? `<p>${escapeHtml(channel.description)}</p>` : '<p>Нет описания</p>'}
+            </div>
+
+            <div class="channel-content">
+                <div class="channel-chat">
+                    <h3><i class="fas fa-bullhorn"></i> Лента канала</h3>
+                    <div class="chat-container" id="channel-chat-container">
+                        <div class="messages-container" id="channel-messages-container"></div>
+                        ${canPost ? `
+                            <div class="message-input-container">
+                                <input type="text" id="channel-message-input" placeholder="Напишите сообщение...">
+                                <button class="btn btn-primary" id="send-channel-message-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        ` : '<p class="read-only-notice">Это канал только для чтения</p>'}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Загружаем сообщения
+        loadChannelMessages(channel.id);
+
+        // Назначаем обработчики
+        const settingsBtn = document.getElementById('channel-settings-btn');
+        const inviteBtn = document.getElementById('channel-invite-btn');
+        const sendBtn = document.getElementById('send-channel-message-btn');
+        const messageInput = document.getElementById('channel-message-input');
+
+        if (settingsBtn) {
+            settingsBtn.addEventListener('click', () => openChannelSettings(channel));
+        }
+
+        if (inviteBtn) {
+            inviteBtn.addEventListener('click', () => showInviteCode(channel.invite_code));
+        }
+
+        if (sendBtn && messageInput) {
+            sendBtn.addEventListener('click', sendChannelMessage);
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    sendChannelMessage();
+                }
+            });
+        }
+    }
+
+    // Загрузка сообщений канала
+    function loadChannelMessages(channelId) {
+        const messagesContainer = document.getElementById('channel-messages-container');
+        if (!messagesContainer) return;
+
+        fetch(`/api/channels/${channelId}/messages`)
+            .then(response => response.json())
+            .then(messages => {
+                displayChannelMessages(messages);
+            })
+            .catch(console.error);
+    }
+
+    // Отображение сообщений канала
+    function displayChannelMessages(messages) {
+        const messagesContainer = document.getElementById('channel-messages-container');
+        if (!messagesContainer) return;
+
+        messagesContainer.innerHTML = '';
+
+        if (!messages || messages.length === 0) {
+            messagesContainer.innerHTML = '<div class="empty-chat">В канале пока нет сообщений</div>';
+            return;
+        }
+
+        messages.forEach(message => {
+            const messageElement = createChannelMessageElement(message);
+            messagesContainer.appendChild(messageElement);
+        });
+
+        scrollToBottom(messagesContainer);
+    }
+
+    // Создание элемента сообщения канала
+    function createChannelMessageElement(message) {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'channel-message';
+
+        const time = formatTime(message.timestamp);
+        const avatarColor = generateColor(message.sender);
+
+        let messageContent = '';
+        if (message.type === 'image') {
+            messageContent = `
+                <div class="message-media">
+                    <img src="/static/uploads/${message.file_path}" alt="Изображение">
+                </div>
+                ${message.message ? `<div class="media-caption">${escapeHtml(message.message)}</div>` : ''}
+            `;
+        } else if (message.type === 'sticker') {
+            messageContent = `
+                <div class="message-sticker">
+                    <div class="sticker-emoji">${escapeHtml(message.message)}</div>
+                </div>
+            `;
+        } else {
+            messageContent = `<div class="message-text">${escapeHtml(message.message)}</div>`;
+        }
+
+        messageElement.innerHTML = `
+            <div class="message-avatar" style="background: ${avatarColor}">
+                ${message.sender[0].toUpperCase()}
+            </div>
+            <div class="message-content">
+                <div class="message-header">
+                    <span class="message-sender">${message.sender}</span>
+                    <span class="message-time">${time}</span>
+                </div>
+                <div class="message-body">
+                    ${messageContent}
+                </div>
+            </div>
+        `;
+
+        return messageElement;
+    }
+
+    // Отправка сообщения в канал
+    function sendChannelMessage() {
+        if (!currentChannelId) return;
+
+        const messageInput = document.getElementById('channel-message-input');
+        const message = messageInput.value.trim();
+
+        if (!message) {
+            showNotification('Введите сообщение', 'error');
+            return;
+        }
+
+        const socket = io();
+        socket.emit('send_channel_message', {
+            channel_id: currentChannelId,
+            message: message,
+            type: 'text'
+        }, (response) => {
+            if (response && response.error) {
+                showNotification('Ошибка отправки: ' + response.error, 'error');
+            } else {
+                messageInput.value = '';
+            }
+        });
+    }
+
+    // Создание канала
+    createChannelBtn.addEventListener('click', () => {
+        createChannelModal.style.display = 'flex';
+    });
+
+    // Присоединение к каналу по коду
+    joinChannelBtn.addEventListener('click', () => {
+        const code = channelInviteCodeInput.value.trim();
+        if (!code) {
+            showNotification('Введите код приглашения', 'error');
+            return;
+        }
+
+        fetch('/api/channels/join', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ invite_code: code })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                showNotification(result.message, 'success');
+                loadMyChannels();
+                channelInviteCodeInput.value = '';
+                openChannel(result.channel.id);
+            } else {
+                showNotification(result.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error joining channel:', error);
+            showNotification('Ошибка подписки на канал', 'error');
+        });
+    });
+
+    // Обработка формы создания канала
+    document.getElementById('create-channel-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const name = document.getElementById('channel-name').value.trim();
+        const description = document.getElementById('channel-description').value.trim();
+        const isPublic = document.querySelector('input[name="channel-type"]:checked').value === 'public';
+        const isReadOnly = document.querySelector('input[name="channel-content"]:checked').value === 'read-only';
+
+        fetch('/api/channels/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: name,
+                description: description,
+                is_public: isPublic,
+                is_read_only: isReadOnly
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                showNotification(result.message, 'success');
+                createChannelModal.style.display = 'none';
+                this.reset();
+                loadMyChannels();
+                openChannel(result.channel.id);
+            } else {
+                showNotification(result.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error creating channel:', error);
+            showNotification('Ошибка создания канала', 'error');
+        });
+    });
+
+    // Открытие настроек канала
+    function openChannelSettings(channel) {
+        channelSettingsModal.style.display = 'flex';
+        const form = document.getElementById('channel-settings-form');
+
+        form.innerHTML = `
+            <div class="form-group">
+                <label for="settings-channel-name">Название канала</label>
+                <input type="text" id="settings-channel-name" value="${escapeHtml(channel.name)}" maxlength="100">
+            </div>
+
+            <div class="form-group">
+                <label for="settings-channel-description">Описание</label>
+                <textarea id="settings-channel-description" rows="3">${escapeHtml(channel.description || '')}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Тип канала</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="settings-channel-type" value="public" ${channel.is_public ? 'checked' : ''}>
+                        <span>Публичный</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="settings-channel-type" value="private" ${!channel.is_public ? 'checked' : ''}>
+                        <span>Закрытый</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Тип контента</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="settings-channel-content" value="normal" ${!channel.is_read_only ? 'checked' : ''}>
+                        <span>Обычный</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="settings-channel-content" value="read-only" ${channel.is_read_only ? 'checked' : ''}>
+                        <span>Только чтение</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="leave-channel-btn">
+                    <i class="fas fa-sign-out-alt"></i> Отписаться
+                </button>
+                <button type="button" class="btn btn-outline close-modal">Отмена</button>
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+            </div>
+        `;
+
+        // Обработка сохранения настроек
+        form.onsubmit = function(e) {
+            e.preventDefault();
+
+            const updatedChannel = {
+                name: document.getElementById('settings-channel-name').value.trim(),
+                description: document.getElementById('settings-channel-description').value.trim(),
+                is_public: document.querySelector('input[name="settings-channel-type"]:checked').value === 'public',
+                is_read_only: document.querySelector('input[name="settings-channel-content"]:checked').value === 'read-only'
+            };
+
+            fetch(`/api/channels/${channel.id}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedChannel)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showNotification(result.message, 'success');
+                    channelSettingsModal.style.display = 'none';
+                    openChannel(channel.id);
+                } else {
+                    showNotification(result.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating channel:', error);
+                showNotification('Ошибка обновления канала', 'error');
+            });
+        };
+
+        // Обработка отписки от канала
+        const leaveBtn = document.getElementById('leave-channel-btn');
+        if (leaveBtn) {
+            leaveBtn.addEventListener('click', () => {
+                if (confirm('Вы уверены, что хотите отписаться от канала?')) {
+                    fetch(`/api/channels/${channel.id}/leave`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            showNotification(result.message, 'success');
+                            channelSettingsModal.style.display = 'none';
+                            loadMyChannels();
+                            emptyState.style.display = 'block';
+                            channelInfo.style.display = 'none';
+                        } else {
+                            showNotification(result.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error leaving channel:', error);
+                        showNotification('Ошибка отписки от канала', 'error');
+                    });
+                }
+            });
+        }
+    }
+
+    // Показать код приглашения
+    function showInviteCode(code) {
+        const inviteModal = document.createElement('div');
+        inviteModal.className = 'modal';
+        inviteModal.style.display = 'flex';
+        inviteModal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-user-plus"></i> Приглашение в канал</h3>
+                    <button class="btn-icon close-modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Поделитесь этим кодом с другими пользователями:</p>
+                    <div class="invite-code">
+                        <code>${code}</code>
+                        <button class="btn-icon" id="copy-invite-code" title="Скопировать">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <p class="small-text">Пользователи смогут подписаться на канал, введя этот код</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline close-modal">Закрыть</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(inviteModal);
+
+        // Копирование кода
+        const copyBtn = inviteModal.querySelector('#copy-invite-code');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(code)
+                    .then(() => showNotification('Код скопирован', 'success'))
+                    .catch(() => showNotification('Ошибка копирования', 'error'));
+            });
+        }
+
+        // Закрытие модального окна
+        const closeBtns = inviteModal.querySelectorAll('.close-modal');
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.body.removeChild(inviteModal);
+            });
+        });
+    }
+
+    // Закрытие модальных окон
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.closest('.modal').style.display = 'none';
+        });
+    });
+
+    // Закрытие модальных окон при клике вне
+    window.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal')) {
+            e.target.style.display = 'none';
+        }
+    });
+
+    // Вспомогательные функции
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatTime(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function generateColor(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
+        return colors[Math.abs(hash) % colors.length];
+    }
+
+    function scrollToBottom(element) {
+        element.scrollTop = element.scrollHeight;
+    }
+
+    function showNotification(message, type = 'info') {
+        // Используем существующую функцию showNotification из script.js
+        if (window.showNotification) {
+            window.showNotification(message, type);
+        } else {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+    }
+
+    // Инициализация WebSocket для каналов
+    const socket = io();
+    socket.on('new_channel_message', function(message) {
+        if (currentChannelId && message.channel_id === currentChannelId) {
+            const messagesContainer = document.getElementById('channel-messages-container');
+            if (messagesContainer) {
+                const messageElement = createChannelMessageElement(message);
+                messagesContainer.appendChild(messageElement);
+                scrollToBottom(messagesContainer);
+            }
+        }
+    });
+
+    // Загружаем каналы при загрузке страницы
+    loadMyChannels();
+});
+</script>
+
+<style>
+.channels-page {
+    height: 100vh;
+    background: var(--bg-dark);
+}
+
+.page-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.page-nav h1 {
+    flex: 1;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-content {
+    display: flex;
+    height: calc(100vh - 70px);
+}
+
+.channels-sidebar {
+    width: 300px;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border-color);
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.sidebar-section {
+    margin-bottom: 2rem;
+}
+
+.sidebar-section h3 {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sidebar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.sidebar-item:hover {
+    background: var(--bg-input);
+}
+
+.sidebar-item.active {
+    background: var(--bg-hover);
+    border-left: 3px solid var(--primary-color);
+}
+
+.item-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: white;
+    font-size: 1rem;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.item-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.read-only-badge {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    background: var(--danger-color);
+    color: white;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.5rem;
+}
+
+.item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.item-info h4 {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-info p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.no-items {
+    text-align: center;
+    padding: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.join-channel-form {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.join-channel-form input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.join-channel-form button {
+    white-space: nowrap;
+}
+
+.channels-main {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    color: var(--primary-color);
+    opacity: 0.2;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h2 {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+}
+
+.channel-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.channel-avatar {
+    width: 4rem;
+    height: 4rem;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: white;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.channel-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.channel-title {
+    flex: 1;
+}
+
+.channel-title h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.channel-meta {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.channel-type {
+    background: var(--bg-input);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+}
+
+.channel-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.channel-description {
+    background: var(--bg-input);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+}
+
+.channel-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.channel-chat {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.channel-chat h3 {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.messages-container {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    padding-right: 0.5rem;
+}
+
+.channel-message {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-input);
+}
+
+.channel-message:hover {
+    background: var(--bg-hover);
+}
+
+.message-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: white;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.message-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.message-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.message-sender {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.message-time {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.message-body {
+    color: var(--text-primary);
+}
+
+.read-only-notice {
+    text-align: center;
+    padding: 1rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+@media (max-width: 768px) {
+    .page-content {
+        flex-direction: column;
+    }
+
+    .channels-sidebar {
+        width: 100%;
+        height: 300px;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .join-channel-form {
+        flex-direction: column;
+    }
+
+    .channel-message {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .message-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+}
+</style>
+{% endblock %}

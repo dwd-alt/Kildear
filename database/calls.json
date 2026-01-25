@@ -1,32 +1,22 @@
 {
-  "call_1766938604350_kwwa2ho4f": {
-    "call_id": "call_1766938604350_kwwa2ho4f",
-    "caller": "roma23222fed",
-    "callee": "roma2332323",
+  "call_1769278064961_i0buzbvsv": {
+    "call_id": "call_1769278064961_i0buzbvsv",
+    "caller": "12121212121231233431213213",
+    "callee": "12121212121212121221221",
     "type": "audio",
-    "started_at": "2025-12-28T23:16:44.353294",
-    "ended_at": "2025-12-28T23:16:48.701496",
+    "started_at": "2026-01-25T01:07:44.964146",
+    "ended_at": "2026-01-25T01:07:47.272370",
     "duration": 0,
-    "ended_by": "roma2332323"
+    "ended_by": "12121212121212121221221"
   },
-  "call_1766938771719_gf17qxymo": {
-    "call_id": "call_1766938771719_gf17qxymo",
-    "caller": "roma23222fed",
-    "callee": "roma33636",
+  "call_1769278126105_ermktsxto": {
+    "call_id": "call_1769278126105_ermktsxto",
+    "caller": "1212112222212121212121212121",
+    "callee": "12121212121231233431213213",
     "type": "audio",
-    "started_at": "2025-12-28T23:19:31.723115",
-    "ended_at": "2025-12-28T23:19:33.630755",
+    "started_at": "2026-01-25T01:08:46.109051",
+    "ended_at": "2026-01-25T01:08:48.485840",
     "duration": 0,
-    "ended_by": "roma33636"
-  },
-  "call_1766938879663_zl055smw1": {
-    "call_id": "call_1766938879663_zl055smw1",
-    "caller": "roma23222fed",
-    "callee": "roma33636",
-    "type": "video",
-    "started_at": "2025-12-28T23:21:19.667449",
-    "ended_at": "2025-12-28T23:21:22.908644",
-    "duration": 0,
-    "ended_by": "roma33636"
+    "ended_by": "1212112222212121212121212121"
   }
 }

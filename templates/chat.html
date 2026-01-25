@@ -110,6 +110,15 @@
                         <i class="fas fa-paperclip"></i>
                         <input type="file" id="file-input" accept="*/*" style="display: none;">
                     </button>
+                    <!-- Голосовое сообщение -->
+                    <button type="button" class="btn-icon" id="attach-voice" title="Голосовое сообщение (удерживайте)">
+                        <i class="fas fa-microphone"></i>
+                        <span class="recording-indicator-dot" style="display: none;"></span>
+                    </button>
+                    <!-- Видео сообщение -->
+                    <button type="button" class="btn-icon" id="attach-video-msg" title="Видео сообщение">
+                        <i class="fas fa-video"></i>
+                    </button>
                     <button type="button" class="btn-icon" id="stickers-toggle" title="Стикеры">
                         <i class="fas fa-smile"></i>
                     </button>
@@ -187,6 +196,141 @@
 <input type="hidden" id="current-user-color" value="{{ current_user.avatar_color }}">
 <input type="hidden" id="is-admin" value="{{ is_admin }}">
 <input type="hidden" id="current-recipient">
+
+<!-- Элементы для записи сообщений (добавлены динамически через JS) -->
+{% endblock %}
+
+{% block styles %}
+<style>
+    /* Дополнительные стили для кнопок записи */
+    .recording-indicator {
+        position: fixed;
+        bottom: 120px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 1rem 1.5rem;
+        display: none;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: var(--shadow-lg);
+        z-index: 1000;
+        border: 2px solid var(--danger-color);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+        }
+    }
+
+    .recording-pulse {
+        width: 12px;
+        height: 12px;
+        background: var(--danger-color);
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+    }
+
+    .recording-text {
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+
+    .recording-timer {
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        color: var(--danger-color);
+        min-width: 3rem;
+    }
+
+    .recording-cancel,
+    .recording-send {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        background: var(--bg-input);
+        border: none;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .recording-send {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .recording-cancel:hover {
+        background: var(--bg-hover);
+    }
+
+    .recording-send:hover {
+        background: var(--primary-dark);
+    }
+
+    /* Стили для голосовых сообщений */
+    .message-voice .voice-message-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--bg-input);
+        border-radius: var(--radius-lg);
+        min-width: 200px;
+        max-width: 300px;
+    }
+
+    .message.outgoing .voice-message-container {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .voice-play-btn {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: var(--transition);
+        flex-shrink: 0;
+    }
+
+    .voice-waveform {
+        flex: 1;
+        height: 2rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-full);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .voice-progress {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: var(--primary-color);
+        width: 0%;
+        transition: width 0.1s linear;
+        border-radius: var(--radius-full);
+    }
+</style>
 {% endblock %}
 
 {% block scripts %}

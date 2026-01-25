@@ -1,0 +1,38 @@
+{
+  "d01a32b5-a92b-40d5-8f7b-7ed0bd73cdd5": {
+    "id": "d01a32b5-a92b-40d5-8f7b-7ed0bd73cdd5",
+    "name": "ХЗ",
+    "description": "аваав",
+    "creator": "fdsfsffdsff",
+    "created_at": "2026-01-21T23:15:27.597880",
+    "avatar": null,
+    "avatar_color": "#45B7D1",
+    "is_public": true,
+    "invite_code": "d5936d43",
+    "members_count": 1,
+    "settings": {
+      "send_messages": "all",
+      "edit_group": "admins",
+      "invite_users": "all",
+      "pin_messages": "admins"
+    }
+  },
+  "d5de4634-fc93-469b-a97a-46fb42a93d65": {
+    "id": "d5de4634-fc93-469b-a97a-46fb42a93d65",
+    "name": "dsd",
+    "description": "dfdf",
+    "creator": "dfsdffsdfsdfsfd",
+    "created_at": "2026-01-21T23:16:37.264024",
+    "avatar": null,
+    "avatar_color": "#FF6B6B",
+    "is_public": true,
+    "invite_code": "9943dbeb",
+    "members_count": 1,
+    "settings": {
+      "send_messages": "all",
+      "edit_group": "admins",
+      "invite_users": "all",
+      "pin_messages": "admins"
+    }
+  }
+}

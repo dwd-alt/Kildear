@@ -6282,3 +6282,1210 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('Kildear Messenger инициализирован');
 });
+
+/* Добавьте эти стили в конец style.css */
+
+/* Голосовые сообщения */
+.message-voice {
+    margin: 0.5rem 0;
+}
+
+.voice-message-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-input);
+    border-radius: var(--radius-lg);
+    min-width: 200px;
+    max-width: 300px;
+}
+
+.message.outgoing .voice-message-container {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.voice-play-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.voice-play-btn:hover {
+    background: var(--primary-dark);
+    transform: scale(1.05);
+}
+
+.voice-waveform {
+    flex: 1;
+    height: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-full);
+    position: relative;
+    overflow: hidden;
+}
+
+.message.outgoing .voice-waveform {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.voice-wave {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        to right,
+        transparent,
+        transparent 2px,
+        var(--primary-color) 2px,
+        var(--primary-color) 4px
+    );
+    opacity: 0.3;
+}
+
+.voice-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--primary-color);
+    width: 0%;
+    transition: width 0.1s linear;
+    border-radius: var(--radius-full);
+}
+
+.voice-duration {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    min-width: 3rem;
+    text-align: right;
+}
+
+/* Видео сообщения (как в Telegram) */
+.message-video-note {
+    margin: 0.5rem 0;
+    position: relative;
+}
+
+.video-note-container {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    border: 2px solid var(--primary-color);
+    cursor: pointer;
+}
+
+.video-note-preview {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.video-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.9);
+}
+
+.video-play-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.video-note-container:hover .video-play-overlay {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.video-play-overlay i {
+    font-size: 3rem;
+    color: white;
+    opacity: 0.8;
+}
+
+.video-duration {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Индикатор записи */
+.recording-indicator {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.5rem;
+    display: none;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    border: 2px solid var(--danger-color);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+.recording-pulse {
+    width: 12px;
+    height: 12px;
+    background: var(--danger-color);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+.recording-text {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.recording-timer {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: var(--danger-color);
+    min-width: 3rem;
+}
+
+.recording-cancel,
+.recording-send {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--bg-input);
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.recording-send {
+    background: var(--primary-color);
+    color: white;
+}
+
+.recording-cancel:hover {
+    background: var(--bg-hover);
+}
+
+.recording-send:hover {
+    background: var(--primary-dark);
+}
+
+/* Видеорекордер превью */
+.video-recorder-preview {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 2000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.video-preview-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    background: black;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.video-preview {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.recording-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+}
+
+.recording-controls .recording-timer {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.recording-controls .recording-cancel,
+.recording-controls .recording-stop {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: var(--transition);
+}
+
+.recording-controls .recording-cancel {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.recording-controls .recording-stop {
+    background: var(--danger-color);
+    color: white;
+}
+
+.recording-controls .recording-cancel:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.recording-controls .recording-stop:hover {
+    background: #dc2626;
+}
+
+/* Анимация для кнопки записи голоса */
+@keyframes recording-pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+.recording-voice-btn {
+    animation: recording-pulse 2s infinite;
+    background: var(--danger-color) !important;
+}
+
+/* Стили для кнопок записи в панели вложений */
+.attachment-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.voice-record-btn,
+.video-record-btn {
+    position: relative;
+}
+
+.recording-indicator-dot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 8px;
+    height: 8px;
+    background: var(--danger-color);
+    border-radius: 50%;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* Уведомления о новых сообщениях сверху */
+.new-message-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    width: 90%;
+    max-width: 400px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    border-left: 4px solid var(--primary-color);
+    animation: slideDown 0.3s ease forwards;
+}
+
+@keyframes slideDown {
+    to {
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.notification-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-sender {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.notification-message {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.notification-close:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+/* Баджи непрочитанных сообщений */
+.unread-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    min-width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.3rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 2px solid var(--bg-card);
+}
+
+.contact-item {
+    position: relative;
+}
+
+/* Стили для видеозвонков */
+.video-call-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #000;
+}
+
+.local-video-container {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 150px;
+    height: 200px;
+    z-index: 10;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.remote-video-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#local-video,
+#remote-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.call-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    z-index: 20;
+}
+
+.call-btn {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.call-btn:hover {
+    transform: scale(1.1);
+}
+
+.call-btn-accept {
+    background: var(--success-color);
+    color: white;
+}
+
+.call-btn-reject {
+    background: var(--danger-color);
+    color: white;
+}
+
+.call-btn-end {
+    background: var(--danger-color);
+    color: white;
+}
+
+.call-btn-mute {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.call-btn-mute.active {
+    background: var(--danger-color);
+}
+
+/* Просмотрщик медиа */
+.media-viewer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.media-viewer-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.media-viewer-content img,
+.media-viewer-content video {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.close-viewer {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-viewer:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+/* Адаптивность для записывающих интерфейсов */
+@media (max-width: 768px) {
+    .recording-indicator {
+        bottom: 120px;
+        width: 90%;
+        max-width: 400px;
+    }
+
+    .video-preview-container {
+        max-width: 100%;
+        border-radius: 0;
+    }
+
+    .video-note-container {
+        width: 150px;
+        height: 150px;
+    }
+
+    .new-message-notification {
+        width: 95%;
+        top: 10px;
+    }
+
+    .local-video-container {
+        width: 100px;
+        height: 150px;
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .call-controls {
+        padding: 1rem;
+    }
+
+    .call-btn {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1rem;
+    }
+}
+
+/* Темная тема для голосовых сообщений */
+@media (prefers-color-scheme: dark) {
+    .voice-message-container {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .message.outgoing .voice-message-container {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .voice-wave {
+        background: repeating-linear-gradient(
+            to right,
+            transparent,
+            transparent 2px,
+            var(--primary-light) 2px,
+            var(--primary-light) 4px
+        );
+    }
+}
+/* ============ КОНТЕКСТНОЕ МЕНЮ ДЛЯ СООБЩЕНИЙ ============ */
+.message-context-menu {
+    position: fixed;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 200px;
+    display: none;
+    animation: fadeIn 0.2s ease;
+}
+
+.message-context-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0;
+}
+
+.message-context-menu li {
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-color);
+    transition: background-color 0.2s;
+}
+
+.message-context-menu li:hover {
+    background-color: var(--hover-color);
+}
+
+.message-context-menu li i {
+    width: 16px;
+    text-align: center;
+    color: var(--secondary-text);
+}
+
+.message-context-menu .separator {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 8px 0;
+    padding: 0;
+    cursor: default;
+}
+
+/* ============ МОДАЛЬНОЕ ОКНО ПЕРЕСЫЛКИ ============ */
+.forward-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.forward-modal.show {
+    display: flex;
+}
+
+.forward-modal .modal-content {
+    background: var(--card-bg);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s ease;
+}
+
+.forward-modal .modal-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.forward-modal .modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--text-color);
+}
+
+.forward-modal .modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.forward-modal .search-box {
+    margin-bottom: 20px;
+}
+
+.forward-modal .forward-contacts-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.forward-contact-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 4px;
+}
+
+.forward-contact-item:hover {
+    background-color: var(--hover-color);
+}
+
+.forward-contact-item .contact-checkbox {
+    margin-right: 12px;
+}
+
+.forward-contact-item .contact-checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.forward-contact-item .contact-checkbox label {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.forward-contact-item .contact-checkbox input[type="checkbox"]:checked + label {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.forward-contact-item .contact-checkbox input[type="checkbox"]:checked + label:after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+}
+
+.selected-contacts {
+    margin-top: 20px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+}
+
+.selected-contacts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.selected-contacts-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 40px;
+}
+
+.selected-contact-item {
+    display: flex;
+    align-items: center;
+    background: var(--hover-color);
+    border-radius: 20px;
+    padding: 6px 12px;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.selected-contact-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: white;
+    overflow: hidden;
+}
+
+.selected-contact-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remove-selected {
+    background: none;
+    border: none;
+    color: var(--secondary-text);
+    cursor: pointer;
+    padding: 2px;
+    font-size: 12px;
+}
+
+.remove-selected:hover {
+    color: var(--text-color);
+}
+
+.forward-modal .modal-footer {
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* ============ ИНДИКАТОР ОТВЕТА ============ */
+.reply-indicator {
+    position: fixed;
+    bottom: 80px;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    padding: 12px 20px;
+    z-index: 999;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.reply-indicator-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.reply-info {
+    flex: 1;
+}
+
+.reply-title {
+    font-size: 12px;
+    color: var(--secondary-text);
+    margin-bottom: 4px;
+}
+
+.reply-preview {
+    font-size: 14px;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cancel-reply {
+    background: none;
+    border: none;
+    color: var(--secondary-text);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.cancel-reply:hover {
+    background-color: var(--hover-color);
+    color: var(--text-color);
+}
+
+/* ============ УВЕДОМЛЕНИЯ О ПЕЧАТИ ============ */
+.typing-indicator {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    animation: slideUp 0.3s ease;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.typing-dots span {
+    width: 6px;
+    height: 6px;
+    background: var(--secondary-text);
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+.typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+    0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+    40% { transform: scale(1.2); opacity: 1; }
+}
+
+/* ============ УВЕДОМЛЕНИЯ (NOTIFICATIONS) ============ */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 2000;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    max-width: 400px;
+}
+
+.notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notification i {
+    font-size: 20px;
+}
+
+.notification-success i { color: #4CAF50; }
+.notification-error i { color: #F44336; }
+.notification-info i { color: #2196F3; }
+.notification-warning i { color: #FF9800; }
+
+/* ============ АНИМАЦИИ ============ */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* ============ СТИКЕРЫ ============ */
+.stickers-modal {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    max-height: 400px;
+    display: none;
+    flex-direction: column;
+    z-index: 999;
+}
+
+.stickers-modal.show {
+    display: flex;
+    animation: slideUp 0.3s ease;
+}
+
+.stickers-categories {
+    display: flex;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    gap: 10px;
+    overflow-x: auto;
+}
+
+.sticker-category {
+    padding: 8px 16px;
+    background: var(--hover-color);
+    border-radius: 20px;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+}
+
+.sticker-category.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.stickers-grid {
+    flex: 1;
+    padding: 15px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    overflow-y: auto;
+}
+
+.sticker-item {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.sticker-item:hover {
+    background-color: var(--hover-color);
+}
+
+/* ============ РЕДАКТИРОВАНИЕ СООБЩЕНИЙ ============ */
+.message-edit-input {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    color: var(--text-color);
+    font-size: 14px;
+    outline: none;
+}
+
+.message.edited .message-text:after {
+    content: ' (ред.)';
+    font-size: 11px;
+    color: var(--secondary-text);
+    margin-left: 4px;
+}
+
+/* ============ ПЕРЕСЛАННЫЕ СООБЩЕНИЯ ============ */
+.message.forwarded .forward-indicator {
+    font-size: 12px;
+    color: var(--secondary-text);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.message.forwarded .forward-indicator i {
+    font-size: 10px;
+}
+
+/* ============ ОТВЕТ НА СООБЩЕНИЯ ============ */
+.reply-indicator-message {
+    margin-bottom: 8px;
+    padding-left: 12px;
+    border-left: 3px solid var(--primary-color);
+    position: relative;
+}
+
+.reply-line {
+    position: absolute;
+    left: -3px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--primary-color);
+    border-radius: 3px;
+}
+
+.reply-content {
+    padding: 6px 0;
+}
+
+.reply-sender {
+    font-size: 12px;
+    color: var(--secondary-text);
+    margin-bottom: 2px;
+}
+
+.reply-text {
+    font-size: 13px;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+/* ============ ЗАКРЕПЛЕННЫЕ СООБЩЕНИЯ ============ */
+.message.pinned:before {
+    content: '📌';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+}
+
+/* ============ АДАПТИВНОСТЬ ============ */
+@media (max-width: 768px) {
+    .message-context-menu {
+        min-width: 180px;
+        font-size: 13px;
+    }
+
+    .forward-modal .modal-content {
+        width: 95%;
+        max-height: 70vh;
+    }
+
+    .reply-indicator {
+        bottom: 70px;
+        padding: 10px 15px;
+    }
+
+    .notification {
+        left: 10px;
+        right: 10px;
+        max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .forward-contact-item {
+        padding: 10px;
+    }
+
+    .selected-contact-item {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+
+    .stickers-modal {
+        width: calc(100% - 40px);
+        right: 10px;
+        left: 10px;
+    }
+}
